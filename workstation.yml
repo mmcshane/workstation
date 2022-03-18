@@ -213,7 +213,7 @@
     - name: "ensure kitty installed"
       tags: kitty
       ansible.builtin.shell:
-        cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+        cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
         creates: "{{ ansible_user_dir }}/.local/bin/kitty"
       when: find_kitty.failed
 
