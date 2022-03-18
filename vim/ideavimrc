@@ -1,0 +1,29 @@
+set clipboard+=unnamed
+set clipboard+=ideaput
+set visualbell
+set noerrorbells
+
+set incsearch
+set ignorecase
+set smartcase
+
+set ideajoin
+set idearefactormode=keep
+set surround
+
+let mapleader=","
+
+nmap <leader>p :action GotoClass<CR>
+nmap <leader>? :action QuickJavaDoc<CR>
+nmap <leader>i :action QuickImplementations<CR>
+nmap <leader>u :action Build<CR>
+nmap gi :action GotoImplementation<CR>
+nmap gd :action GotoDeclaration<CR>
+nmap gu :action FindUsages<CR>
+nmap <C-CR> :action ShowIntentionActions<CR>
+nmap <leader>ff :action FileStructurePopup<CR>
+
+nmap <Leader>l <C-w>l
+nmap <Leader>h <C-w>h
+nmap <Leader>j <C-w>j
+nmap <Leader>k <C-w>k
