@@ -134,12 +134,37 @@
       register: find_rustup
       changed_when: no
 
+    - name: "backup dotfiles"
+      tags: rust
+      ansible.builtin.command:
+        cmd: mv {{ item }} {{ item }}.bak
+        removes: "{{ item }}"
+      loop:
+        - "{{ ansible_user_dir }}/.bashrc"
+        - "{{ ansible_user_dir }}/.profile"
+      when: find_rustup.failed
+      register: rustup_dotfile_backup
+
+    - name: "phony bashrc for rustup update"
+      tags: rust
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/.bashrc"
+        state: touch
+      when: rustup_dotfile_backup is not skipped
+
     - name: "install rustup"
       tags: rust
       ansible.builtin.shell:
         cmd: curl https://sh.rustup.rs -sSf | sh -s -- -y
         creates: "{{ ansible_user_dir }}/.cargo/bin/rustup"
       when: find_rustup.failed
+
+    - name: "rustup bashrc"
+      tags: rust
+      ansible.builtin.copy:
+        dest: "{{ ansible_user_dir }}/.bashrc.d/100.rustup.sh"
+        content:
+          source <(rustup completions bash)
 
     - name: "rustup update"
       tags: rust
@@ -150,8 +175,25 @@
       tags: rust
       ansible.builtin.copy:
         dest: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
-        content: |
-          [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+        src: "{{ ansible_user_dir }}/.bashrc"
+        remote_src: yes
+      when: rustup_dotfile_backup is not skipped
+
+    - name: "cargo bash completions"
+      tags: rust
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
+        line: source $(rustc --print sysroot)/etc/bash_completion.d/cargo
+
+    - name: "restore original dotfiles"
+      tags: rust
+      ansible.builtin.command:
+        cmd: mv {{ item }}.bak {{ item }}
+        removes: "{{ item }}.bak"
+      loop:
+        - "{{ ansible_user_dir }}/.bashrc"
+        - "{{ ansible_user_dir }}/.profile"
+      when: rustup_dotfile_backup is not skipped
 
 
 
@@ -216,6 +258,9 @@
       ansible.builtin.command: fc-cache -f -v
       when: jetbrains_mono.changed
 
+
+
+
     - name: "check for kitty install"
       tags: kitty
       ansible.builtin.command: kitty --version
@@ -223,12 +268,27 @@
       register: find_kitty
       changed_when: no
 
+    - name: "backup bashrc"
+      tags: kitty
+      ansible.builtin.command:
+        cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
+        removes: "{{ ansible_user_dir }}/.bashrc"
+      when: find_kitty.failed
+      register: kitty_bashrc_backup
+
     - name: "ensure kitty installed"
       tags: kitty
       ansible.builtin.shell:
         cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
         creates: "{{ ansible_user_dir }}/.local/bin/kitty"
       when: find_kitty.failed
+
+    - name: "restore original bashrc"
+      tags: kitty
+      ansible.builtin.command:
+        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
+      when: kitty_bashrc_backup is not skipped
+
 
     - name: "kitty executable symlink"
       tags: kitty
@@ -332,27 +392,28 @@
         include: kubens
 
 
+
+
     - name: "check for nvm install"
       tags: nvm
       ansible.builtin.stat:
-        path: "{{ ansible_user_dir }}/.bashrc.d/100.nvm.sh"
-      register: nvm_bashrc
+        path: "{{ ansible_user_dir }}/.nvm"
+      register: nvm_dir
 
     - name: "backup bashrc"
       tags: nvm
       ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
-        creates: "{{ ansible_user_dir }}/.bashrc.bak"
-      when: not nvm_bashrc.stat.exists
-      register: bashrc_backup
+        cmd: mv "{{ ansible_user_dir }}/.bashrc" "{{ ansible_user_dir }}/.bashrc.bak"
+        removes: "{{ ansible_user_dir }}/.bashrc"
+      when: not nvm_dir.stat.exists
+      register: nvm_bashrc_backup
 
     - name: "phony bashrc for nvm installer"
       tags: nvm
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc"
-        force: no
-        content: ''
-      when: not bashrc_backup is skipped
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/.bashrc"
+        state: touch
+      when: nvm_bashrc_backup is not skipped
 
     - name: "ensure nvm installed"
       tags: nvm
@@ -360,19 +421,19 @@
         cmd: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
         creates: "{{ ansible_user_dir }}/.nvm"
 
-    - name: "move nvm bashrc"
+    - name: "nvm bashrc"
       tags: nvm
       ansible.builtin.copy:
         src: "{{ ansible_user_dir }}/.bashrc"
         dest: "{{ ansible_user_dir }}/.bashrc.d/100.nvm.sh"
-        force: no
+        remote_src: yes
+      when: nvm_bashrc_backup is not skipped
 
     - name: "restore original bashrc"
       tags: nvm
       ansible.builtin.command:
         cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-        removes: "{{ ansible_user_dir }}/.bashrc.bak"
-      when: not bashrc_backup is skipped
+      when: nvm_bashrc_backup is not skipped
 
 
 
