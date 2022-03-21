@@ -20,11 +20,7 @@
         name:
           - build-essential
           - curl
-          - docker.io
-          - docker-compose
-          - firefox
           - fzf
-          - gcc
           - git
           - lynx
           - m4
