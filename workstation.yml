@@ -42,91 +42,11 @@
         name: bw
 
     - ansible.builtin.include_tasks:
-        file: bash.yml
+        file: "{{ include_path }}"
         apply:
-          tags: bash
-      tags: bash
-
-    - ansible.builtin.include_tasks:
-        file: aws.yml
-        apply:
-          tags: aws
-      tags: aws
-
-    - ansible.builtin.include_tasks:
-        file: rust.yml
-        apply:
-          tags: rust
-      tags: rust
-
-    - ansible.builtin.include_tasks:
-        file: gh.yml
-        apply:
-          tags: gh
-      tags: gh
-
-    - ansible.builtin.include_tasks:
-        file: go.yml
-        apply:
-          tags: go
-      tags: go
-
-    - ansible.builtin.include_tasks:
-        file: fonts.yml
-        apply:
-          tags: fonts
-      tags: fonts
-
-
-    - ansible.builtin.include_tasks:
-        file: kitty.yml
-        apply:
-          tags: kitty
-      tags: kitty
-
-
-    - ansible.builtin.include_tasks:
-        file: k8s.yml
-        apply:
-          tags: k8s
-      tags: k8s
-
-
-    - ansible.builtin.include_tasks:
-        file: nvm.yml
-        apply:
-          tags: nvm
-      tags: nvm
-
-
-    - ansible.builtin.include_tasks:
-        file: sdkman.yml
-        apply:
-          tags: sdkman
-      tags: sdkman
-
-
-    - ansible.builtin.include_tasks:
-        file: vim.yml
-        apply:
-          tags: vim
-      tags: vim
-
-    - ansible.builtin.include_tasks:
-        file: git.yml
-        apply:
-          tags: git
-      tags: git
-
-    - ansible.builtin.include_tasks:
-        file: zoom.yml
-        apply:
-          tags: zoom
-      tags: zoom
-
-
-    - ansible.builtin.include_tasks:
-        file: less.yml
-        apply:
-          tags: less
-      tags: less
+          tags: "{{ include_path | basename | splitext | first }}"
+      tags: always
+      loop: "{{ query('fileglob', '*.yml') | reject('search', 'workstation.yml') }}"
+      loop_control:
+        loop_var: include_path
+        
