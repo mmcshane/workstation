@@ -1,0 +1,13 @@
+
+- name: "ensure sdkman installed"
+  ansible.builtin.shell:
+    cmd: curl -s "https://get.sdkman.io" | bash
+    creates: "{{ ansible_user_dir }}/.sdkman"
+
+- name: "bashrc sdkman"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.sdkman.sh"
+    content: |
+     export SDKMAN_DIR="$HOME/.sdkman"
+     [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+

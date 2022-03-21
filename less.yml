@@ -1,0 +1,12 @@
+
+- name: "user lessfilter"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.lessfilter"
+    mode: 0775
+    content: |
+      #!/bin/sh
+      case "$1" in
+        *.md) pandoc -s -f gfm -t html "$1" | lynx -stdin -dump ;;
+        *) exit 1
+      esac
+

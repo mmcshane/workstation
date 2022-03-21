@@ -1,0 +1,39 @@
+
+- name: "check for aws cli install"
+  ansible.builtin.command: aws --version
+  ignore_errors: yes
+  register: find_aws
+  changed_when: no
+
+- name: "set up a temp dir"
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: .delete_me
+  register: aws_download_dir
+  when: find_aws.failed
+
+- name: "download aws cli"
+  ansible.builtin.unarchive:
+    src: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    dest: "{{ aws_download_dir.path }}"
+    remote_src: yes
+  when: find_aws.failed
+
+- name: "install aws cli"
+  ansible.builtin.command: 
+    cmd: "{{ aws_download_dir.path }}/aws/install -i {{ ansible_user_dir }}/.local/aws-cli -b {{ ansible_user_dir }}/.local/bin"
+    creates: "{{ ansible_user_dir }}/.local/bin/aws"
+  when: find_aws.failed
+
+- name: "remove temp dir"
+  ansible.builtin.file:
+    path: "{{ aws_download_dir.path }}"
+    state: absent
+  when: aws_download_dir is not skipped
+
+- name: "bashrc aws"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.aws.sh"
+    content: |
+      complete -C "$HOME/.local/bin/aws_completer" aws
+

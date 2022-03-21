@@ -41,523 +41,92 @@
       community.general.snap:
         name: bw
 
-    - name: "~/.bashrc.d"
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.bashrc.d"
-        state: directory
+    - ansible.builtin.include_tasks:
+        file: bash.yml
+        apply:
+          tags: bash
+      tags: bash
 
-    - name: "~/.local/bin"
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.local/bin"
-        state: directory
-        recurse: true
-
-    - name: "~/.bashrc"
-      ansible.builtin.blockinfile:
-        path: "{{ ansible_user_dir }}/.bashrc"
-        block: |
-          for f in ~/.bashrc.d/*.sh; do 
-            source "$f"
-          done
-
-    - name: "bashrc pathutil"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/099.pathutil.sh"
-        content: |
-          path_prepend() {
-            local aux=":${!1}:"
-            aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
-            printf -v "$1" '%s' "${2}${aux:+:}${aux}"  
-          }
-
-          path_append() {
-            local aux=":${!1}:"
-            aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
-            printf -v "$1" '%s' "${aux}${aux:+:}${2}"
-          }
-
-          path_remove() {
-            local aux=":${!1}:"
-            aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
-            printf -v "$1" '%s' "$aux"
-          } 
-
-    - name: "check for aws cli install"
+    - ansible.builtin.include_tasks:
+        file: aws.yml
+        apply:
+          tags: aws
       tags: aws
-      ansible.builtin.command: aws --version
-      ignore_errors: yes
-      register: find_aws
-      changed_when: no
 
-    - name: "set up a temp dir"
-      ansible.builtin.tempfile:
-        state: directory
-        suffix: .delete_me
-      register: aws_download_dir
-      when: find_aws.failed
-
-    - name: "download aws cli"
-      tags: aws
-      ansible.builtin.unarchive:
-        src: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
-        dest: "{{ aws_download_dir.path }}"
-        remote_src: yes
-      when: find_aws.failed
-
-    - name: "install aws cli"
-      tags: aws
-      ansible.builtin.command: 
-        cmd: "{{ aws_download_dir.path }}/aws/install -i {{ ansible_user_dir }}/.local/aws-cli -b {{ ansible_user_dir }}/.local/bin"
-        creates: "{{ ansible_user_dir }}/.local/bin/aws"
-      when: find_aws.failed
-
-    - name: "remove temp dir"
-      tags: aws
-      ansible.builtin.file:
-        path: "{{ aws_download_dir.path }}"
-        state: absent
-      when: aws_download_dir is not skipped
-
-    - name: "bashrc aws"
-      tags: aws
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.aws.sh"
-        content: |
-          complete -C "$HOME/.local/bin/aws_completer" aws
-
-
-
-    - name: "check for rustup install"
+    - ansible.builtin.include_tasks:
+        file: rust.yml
+        apply:
+          tags: rust
       tags: rust
-      ansible.builtin.command: rustup --version
-      ignore_errors: yes
-      register: find_rustup
-      changed_when: no
 
-    - name: "backup dotfiles"
-      tags: rust
-      ansible.builtin.command:
-        cmd: mv {{ item }} {{ item }}.bak
-        removes: "{{ item }}"
-      loop:
-        - "{{ ansible_user_dir }}/.bashrc"
-        - "{{ ansible_user_dir }}/.profile"
-      when: find_rustup.failed
-      register: rustup_dotfile_backup
-
-    - name: "phony bashrc for rustup update"
-      tags: rust
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.bashrc"
-        state: touch
-      when: rustup_dotfile_backup is not skipped
-
-    - name: "install rustup"
-      tags: rust
-      ansible.builtin.shell:
-        cmd: curl https://sh.rustup.rs -sSf | sh -s -- -y
-        creates: "{{ ansible_user_dir }}/.cargo/bin/rustup"
-      when: find_rustup.failed
-
-    - name: "rustup bashrc"
-      tags: rust
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.rustup.sh"
-        content:
-          source <(rustup completions bash)
-
-    - name: "rustup update"
-      tags: rust
-      ansible.builtin.command: "{{ ansible_user_dir }}/.cargo/bin/rustup update"
-      when: find_rustup.failed
-
-    - name: "bashrc cargo"
-      tags: rust
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
-        src: "{{ ansible_user_dir }}/.bashrc"
-        remote_src: yes
-      when: rustup_dotfile_backup is not skipped
-
-    - name: "cargo bash completions"
-      tags: rust
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
-        line: source $(rustc --print sysroot)/etc/bash_completion.d/cargo
-
-    - name: "restore original dotfiles"
-      tags: rust
-      ansible.builtin.command:
-        cmd: mv {{ item }}.bak {{ item }}
-        removes: "{{ item }}.bak"
-      loop:
-        - "{{ ansible_user_dir }}/.bashrc"
-        - "{{ ansible_user_dir }}/.profile"
-      when: rustup_dotfile_backup is not skipped
-
-
-
-    - name: "gh cli repo key"
+    - ansible.builtin.include_tasks:
+        file: gh.yml
+        apply:
+          tags: gh
       tags: gh
-      become: true
-      ansible.builtin.get_url: 
-        url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
-        dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
 
-    - name: "add gh repository"
-      tags: gh
-      ansible.builtin.apt_repository:
-        repo: deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main
-        update_cache: yes
-
-    - name: "ensure gh installed"
-      tags: gh
-      ansible.builtin.package:
-        name: gh
-
-    - name: "bashrc gh"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.gh.sh"
-        content: |
-          eval "$(gh completion -s bash)"
-
-
-
-    - name: "download go {{ go_version }}"
+    - ansible.builtin.include_tasks:
+        file: go.yml
+        apply:
+          tags: go
       tags: go
-      ansible.builtin.unarchive:
-        src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
-        remote_src: yes
-        dest: "{{ ansible_user_dir }}/.local/"
-        creates: "{{ ansible_user_dir }}/.local/go{{ go_version }}"
-        extra_opts:
-          - "--transform"
-          - "s/^go/go{{ go_version }}/"
 
-    - name: "bashrc go"
-      tags: go
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.go.sh"
-        content: |
-          path_prepend PATH "$HOME/.local/go{{ go_version }}/bin"
-          path_prepend PATH "$HOME/go/bin"
-
-
-    - name: "install Jetbrains Mono"
+    - ansible.builtin.include_tasks:
+        file: fonts.yml
+        apply:
+          tags: fonts
       tags: fonts
-      ansible.builtin.unarchive:
-        src: https://download.jetbrains.com/fonts/JetBrainsMono-2.242.zip
-        remote_src: yes
-        dest: "{{ ansible_user_dir }}/.local/share/"
-        include: fonts/*
-        creates: "{{ ansible_user_dir }}/.local/share/fonts/ttf/JetBrainsMono-Regular.ttf"
-      register: jetbrains_mono
-
-    - name: "reload font cache"
-      tags: fonts
-      ansible.builtin.command: fc-cache -f -v
-      when: jetbrains_mono.changed
 
 
-
-
-    - name: "check for kitty install"
+    - ansible.builtin.include_tasks:
+        file: kitty.yml
+        apply:
+          tags: kitty
       tags: kitty
-      ansible.builtin.command: kitty --version
-      ignore_errors: yes
-      register: find_kitty
-      changed_when: no
-
-    - name: "backup bashrc"
-      tags: kitty
-      ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
-        removes: "{{ ansible_user_dir }}/.bashrc"
-      when: find_kitty.failed
-      register: kitty_bashrc_backup
-
-    - name: "ensure kitty installed"
-      tags: kitty
-      ansible.builtin.shell:
-        cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
-        creates: "{{ ansible_user_dir }}/.local/bin/kitty"
-      when: find_kitty.failed
-
-    - name: "restore original bashrc"
-      tags: kitty
-      ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-      when: kitty_bashrc_backup is not skipped
 
 
-    - name: "kitty executable symlink"
-      tags: kitty
-      ansible.builtin.file:
-        src: "{{ ansible_user_dir }}/.local/kitty.app/bin/kitty"
-        path: "{{ ansible_user_dir }}/.local/bin/"
-
-    - name: "kitty desktop files"
-      tags: kitty
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "{{ ansible_user_dir }}/.local/share/applications/"
-        force: no
-      with_fileglob: "{{ ansible_user_dir }}/.local/kitty.app/share/applications/kitty*.desktop"
-
-    - name: "kitty desktop icon"
-      tags: kitty
-      ansible.builtin.lineinfile:
-        path: "{{ item }}"
-        regex: "Icon=Kitty"
-        line: "Icon={{ ansible_user_dir }}/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png"
-      with_fileglob: "{{ ansible_user_dir }}/.local/share/applications/kitty*.desktop"
-
-    - name: "fetch kitty theme"
-      tags: kitty
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/SpaceGray_Eighties.conf
-        dest: "{{ ansible_user_dir }}/.config/kitty/current-theme.conf"
-
-    - name: "kitty config"
-      tags: kitty
-      ansible.builtin.copy:
-        force: no
-        dest: "{{ ansible_user_dir }}/.config/kitty/kitty.conf"
-        content: |
-          font_family          Jetbrains Mono
-          font_size            11.0
-          enable_audio_bell    no
-          tab_bar_edge         top
-          tab_bar_style        powerline
-          shell_integration    disabled
-          allow_remote_control yes
-
-          # BEGIN_KITTY_THEME
-          # Space Gray Eighties
-          include current-theme.conf
-          # END_KITTY_THEME
-
-
-    - name: "bashrc kitty"
-      tags: kitty
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.kitty.sh"
-        content: |
-          source <(kitty + complete setup bash)
-
-
-
-
-    - name: "find latest kubectl version"
+    - ansible.builtin.include_tasks:
+        file: k8s.yml
+        apply:
+          tags: k8s
       tags: k8s
-      ansible.builtin.uri:
-        url: https://dl.k8s.io/release/stable.txt
-        return_content: yes
-      register: kubectl_release
-      changed_when: no
-
-    - name: "ensure kubectl installed"
-      tags: k8s
-      ansible.builtin.get_url:
-        url: https://dl.k8s.io/release/{{ kubectl_release.content | trim }}/bin/linux/amd64/kubectl
-        dest: "{{ ansible_user_dir }}/.local/bin/kubectl"
-        mode: 0755
-      when: not kubectl_release is skipped
-
-    - name: "bashrc kubectl"
-      tags: k8s
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.kubectl.sh"
-        content: |
-          source <(kubectl completion bash)
-          alias k='kubectl'
-          complete -F __start_kubectl k
-
-    - name: "ensure kubectx installed"
-      tags: k8s
-      ansible.builtin.unarchive:
-        src: https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubectx_v0.9.4_linux_x86_64.tar.gz
-        remote_src: yes
-        dest: "{{ ansible_user_dir }}/.local/bin/"
-        creates: "{{ ansible_user_dir }}/.local/bin/kubectx"
-        include: kubectx
-
-    - name: "ensure kubens installed"
-      tags: k8s
-      ansible.builtin.unarchive:
-        src: https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubens_v0.9.4_linux_x86_64.tar.gz
-        remote_src: yes
-        dest: "{{ ansible_user_dir }}/.local/bin/"
-        creates: "{{ ansible_user_dir }}/.local/bin/kubens"
-        include: kubens
 
 
-
-
-    - name: "check for nvm install"
+    - ansible.builtin.include_tasks:
+        file: nvm.yml
+        apply:
+          tags: nvm
       tags: nvm
-      ansible.builtin.stat:
-        path: "{{ ansible_user_dir }}/.nvm"
-      register: nvm_dir
-
-    - name: "backup bashrc"
-      tags: nvm
-      ansible.builtin.command:
-        cmd: mv "{{ ansible_user_dir }}/.bashrc" "{{ ansible_user_dir }}/.bashrc.bak"
-        removes: "{{ ansible_user_dir }}/.bashrc"
-      when: not nvm_dir.stat.exists
-      register: nvm_bashrc_backup
-
-    - name: "phony bashrc for nvm installer"
-      tags: nvm
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.bashrc"
-        state: touch
-      when: nvm_bashrc_backup is not skipped
-
-    - name: "ensure nvm installed"
-      tags: nvm
-      ansible.builtin.shell:
-        cmd: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-        creates: "{{ ansible_user_dir }}/.nvm"
-
-    - name: "nvm bashrc"
-      tags: nvm
-      ansible.builtin.copy:
-        src: "{{ ansible_user_dir }}/.bashrc"
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.nvm.sh"
-        remote_src: yes
-      when: nvm_bashrc_backup is not skipped
-
-    - name: "restore original bashrc"
-      tags: nvm
-      ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-      when: nvm_bashrc_backup is not skipped
 
 
-
-    - name: "ensure sdkman installed"
+    - ansible.builtin.include_tasks:
+        file: sdkman.yml
+        apply:
+          tags: sdkman
       tags: sdkman
-      ansible.builtin.shell:
-        cmd: curl -s "https://get.sdkman.io" | bash
-        creates: "{{ ansible_user_dir }}/.sdkman"
-
-    - name: "bashrc sdkman"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.sdkman.sh"
-        content: |
-         export SDKMAN_DIR="$HOME/.sdkman"
-         [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 
+    - ansible.builtin.include_tasks:
+        file: vim.yml
+        apply:
+          tags: vim
+      tags: vim
 
+    - ansible.builtin.include_tasks:
+        file: git.yml
+        apply:
+          tags: git
+      tags: git
 
-    - name: "bashrc path"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.path.sh"
-        content: |
-          path_prepend PATH "~/.local/bin"
-
-    - name: "bashrc history"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.history.sh"
-        content: |
-          export HISTCONTROL=ignoreboth:erasedups
-          export HISTSIZE=10000
-          export HISTIGNORE="clear:cd:cd -:cd ..:exit:date:w:* --help:"
-
-    - name: "user git config"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.config/git/config"
-        content: |
-          [user]
-              name = Matt McShane
-              email = matt@mattmcshane.com
-          [fetch]
-              prune = true
-          [commit]
-              verbose = true
-          [includeIf "gitdir:~/temporalio/"]
-              path = ~/temporalio/.gitconfig
-
-    - name: "user inputrc"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.inputrc"
-        content: |
-          $include /etc/inputrc
-          "\e[A": history-search-backward
-          "\e[B": history-search-forward
-          set enable-bracketed-paste on
-
-    - name: "user lessfilter"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.lessfilter"
-        mode: 0775
-        content: |
-          #!/bin/sh
-          case "$1" in
-            *.md) pandoc -s -f gfm -t html "$1" | lynx -stdin -dump ;;
-            *) exit 1
-          esac
-
-    - name: "check for zoom install"
+    - ansible.builtin.include_tasks:
+        file: zoom.yml
+        apply:
+          tags: zoom
       tags: zoom
-      ansible.builtin.command: which zoom
-      changed_when: no
-      ignore_errors: yes
-      register: find_zoom
 
-    - name: "install zoom"
-      tags: zoom
-      become: true
-      ansible.builtin.apt:
-        deb: https://zoom.us/client/latest/zoom_amd64.deb
-      when: find_zoom.failed
 
-    - name: "xdg user dirs"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.config/user-dirs.dirs"
-        content: |
-          XDG_DESKTOP_DIR="$HOME/"
-          XDG_DOWNLOAD_DIR="$HOME/"
-          XDG_TEMPLATES_DIR="$HOME/"
-          XDG_PUBLICSHARE_DIR="$HOME/"
-          XDG_DOCUMENTS_DIR="$HOME/"
-          XDG_MUSIC_DIR="$HOME/"
-          XDG_PICTURES_DIR="$HOME/"
-          XDG_VIDEOS_DIR="$HOME/"
-
-    - name: ".vim dir"
-      tags: vim
-      ansible.builtin.copy:
-        src: vim/
-        dest: "{{ ansible_user_dir }}/.vim/"
-
-    - name: "link .vimrc"
-      tags: vim
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.vimrc"
-        src: "{{ ansible_user_dir }}/.vim/vimrc"
-        state: link
-
-    - name: "link .ideavimrc"
-      tags: vim
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.ideavimrc"
-        src: "{{ ansible_user_dir }}/.vim/ideavimrc"
-        state: link
-
-    - name: "vim plugins"
-      tags: vim
-      ansible.builtin.git:
-        depth: 1
-        repo: "{{ item.repo }}"
-        update: no
-        version: "{{ item.ref }}"
-        dest: "{{ ansible_user_dir }}/.vim/pack/plugins/start/{{ item.repo | urlsplit('path') | basename }}"
-      loop:
-        - { repo: "https://github.com/ctrlpvim/ctrlp.vim", ref: "HEAD" }
-        - { repo: "https://github.com/tpope/vim-fugitive", ref: "v3.6" }
-        - { repo: "https://github.com/tpope/vim-rhubarb", ref: "HEAD" }
-        - { repo: "https://github.com/fatih/vim-go", ref: "v1.25" }
+    - ansible.builtin.include_tasks:
+        file: less.yml
+        apply:
+          tags: less
+      tags: less

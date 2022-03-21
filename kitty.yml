@@ -1,0 +1,75 @@
+- name: "check for kitty install"
+  ansible.builtin.command: kitty --version
+  ignore_errors: yes
+  register: find_kitty
+  changed_when: no
+
+- name: "backup bashrc"
+  ansible.builtin.command:
+    cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
+    removes: "{{ ansible_user_dir }}/.bashrc"
+  when: find_kitty.failed
+  register: kitty_bashrc_backup
+
+- name: "ensure kitty installed"
+  ansible.builtin.shell:
+    cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
+    creates: "{{ ansible_user_dir }}/.local/bin/kitty"
+  when: find_kitty.failed
+
+- name: "restore original bashrc"
+  ansible.builtin.command:
+    cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
+  when: kitty_bashrc_backup is not skipped
+
+
+- name: "kitty executable symlink"
+  ansible.builtin.file:
+    src: "{{ ansible_user_dir }}/.local/kitty.app/bin/kitty"
+    path: "{{ ansible_user_dir }}/.local/bin/"
+
+- name: "kitty desktop files"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_user_dir }}/.local/share/applications/"
+    force: no
+  with_fileglob: "{{ ansible_user_dir }}/.local/kitty.app/share/applications/kitty*.desktop"
+
+- name: "kitty desktop icon"
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regex: "Icon=Kitty"
+    line: "Icon={{ ansible_user_dir }}/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png"
+  with_fileglob: "{{ ansible_user_dir }}/.local/share/applications/kitty*.desktop"
+
+- name: "fetch kitty theme"
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/SpaceGray_Eighties.conf
+    dest: "{{ ansible_user_dir }}/.config/kitty/current-theme.conf"
+
+- name: "kitty config"
+  ansible.builtin.copy:
+    force: no
+    dest: "{{ ansible_user_dir }}/.config/kitty/kitty.conf"
+    content: |
+      font_family          Jetbrains Mono
+      font_size            11.0
+      enable_audio_bell    no
+      tab_bar_edge         top
+      tab_bar_style        powerline
+      shell_integration    disabled
+      allow_remote_control yes
+
+      # BEGIN_KITTY_THEME
+      # Space Gray Eighties
+      include current-theme.conf
+      # END_KITTY_THEME
+
+
+- name: "bashrc kitty"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.kitty.sh"
+    content: |
+      source <(kitty + complete setup bash)
+
+

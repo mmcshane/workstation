@@ -1,0 +1,25 @@
+- name: "gh cli repo key"
+  tags: gh
+  become: true
+  ansible.builtin.get_url: 
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
+
+- name: "add gh repository"
+  tags: gh
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main
+    update_cache: yes
+
+- name: "ensure gh installed"
+  tags: gh
+  ansible.builtin.package:
+    name: gh
+
+- name: "bashrc gh"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.gh.sh"
+    content: |
+      eval "$(gh completion -s bash)"
+
+

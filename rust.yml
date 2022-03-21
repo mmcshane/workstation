@@ -1,0 +1,58 @@
+- name: "check for rustup install"
+  ansible.builtin.command: rustup --version
+  ignore_errors: yes
+  register: find_rustup
+  changed_when: no
+
+- name: "backup dotfiles"
+  ansible.builtin.command:
+    cmd: mv {{ item }} {{ item }}.bak
+    removes: "{{ item }}"
+  loop:
+    - "{{ ansible_user_dir }}/.bashrc"
+    - "{{ ansible_user_dir }}/.profile"
+  when: find_rustup.failed
+  register: rustup_dotfile_backup
+
+- name: "phony bashrc for rustup update"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    state: touch
+  when: rustup_dotfile_backup is not skipped
+
+- name: "install rustup"
+  ansible.builtin.shell:
+    cmd: curl https://sh.rustup.rs -sSf | sh -s -- -y
+    creates: "{{ ansible_user_dir }}/.cargo/bin/rustup"
+  when: find_rustup.failed
+
+- name: "rustup bashrc"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.rustup.sh"
+    content:
+      source <(rustup completions bash)
+
+- name: "rustup update"
+  ansible.builtin.command: "{{ ansible_user_dir }}/.cargo/bin/rustup update"
+  when: find_rustup.failed
+
+- name: "bashrc cargo"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
+    src: "{{ ansible_user_dir }}/.bashrc"
+    remote_src: yes
+  when: rustup_dotfile_backup is not skipped
+
+- name: "cargo bash completions"
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
+    line: source $(rustc --print sysroot)/etc/bash_completion.d/cargo
+
+- name: "restore original dotfiles"
+  ansible.builtin.command:
+    cmd: mv {{ item }}.bak {{ item }}
+    removes: "{{ item }}.bak"
+  loop:
+    - "{{ ansible_user_dir }}/.bashrc"
+    - "{{ ansible_user_dir }}/.profile"
+  when: rustup_dotfile_backup is not skipped

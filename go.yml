@@ -1,0 +1,18 @@
+
+- name: "download go {{ go_version }}"
+  ansible.builtin.unarchive:
+    src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
+    remote_src: yes
+    dest: "{{ ansible_user_dir }}/.local/"
+    creates: "{{ ansible_user_dir }}/.local/go{{ go_version }}"
+    extra_opts:
+      - "--transform"
+      - "s/^go/go{{ go_version }}/"
+
+- name: "bashrc go"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.go.sh"
+    content: |
+      path_prepend PATH "$HOME/.local/go{{ go_version }}/bin"
+      path_prepend PATH "$HOME/go/bin"
+

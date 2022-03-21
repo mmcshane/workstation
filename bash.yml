@@ -1,0 +1,77 @@
+- name: "~/.bashrc.d"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.bashrc.d"
+    state: directory
+
+- name: "~/.local/bin"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.local/bin"
+    state: directory
+    recurse: true
+
+- name: "~/.bashrc"
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    block: |
+      for f in ~/.bashrc.d/*.sh; do 
+        source "$f"
+      done
+
+- name: "bashrc pathutil"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/099.pathutil.sh"
+    content: |
+      path_prepend() {
+        local aux=":${!1}:"
+        aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
+        printf -v "$1" '%s' "${2}${aux:+:}${aux}"  
+      }
+
+      path_append() {
+        local aux=":${!1}:"
+        aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
+        printf -v "$1" '%s' "${aux}${aux:+:}${2}"
+      }
+
+      path_remove() {
+        local aux=":${!1}:"
+        aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
+        printf -v "$1" '%s' "$aux"
+      } 
+
+- name: "bashrc path"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.path.sh"
+    content: |
+      path_prepend PATH "~/.local/bin"
+
+- name: "bashrc history"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.history.sh"
+    content: |
+      export HISTCONTROL=ignoreboth:erasedups
+      export HISTSIZE=10000
+      export HISTIGNORE="clear:cd:cd -:cd ..:exit:date:w:* --help:"
+
+- name: "user inputrc"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.inputrc"
+    content: |
+      $include /etc/inputrc
+      "\e[A": history-search-backward
+      "\e[B": history-search-forward
+      set enable-bracketed-paste on
+
+- name: "xdg user dirs"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.config/user-dirs.dirs"
+    content: |
+      XDG_DESKTOP_DIR="$HOME/"
+      XDG_DOWNLOAD_DIR="$HOME/"
+      XDG_TEMPLATES_DIR="$HOME/"
+      XDG_PUBLICSHARE_DIR="$HOME/"
+      XDG_DOCUMENTS_DIR="$HOME/"
+      XDG_MUSIC_DIR="$HOME/"
+      XDG_PICTURES_DIR="$HOME/"
+      XDG_VIDEOS_DIR="$HOME/"
+
