@@ -4,23 +4,26 @@
   register: find_kitty
   changed_when: no
 
-- name: "backup bashrc"
-  ansible.builtin.command:
-    cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
-    removes: "{{ ansible_user_dir }}/.bashrc"
-  when: find_kitty.failed
-  register: kitty_bashrc_backup
+- name: "install kitty protecting bashrc"
+  block:
+    - name: "backup bashrc"
+      ansible.builtin.command:
+        cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
+        removes: "{{ ansible_user_dir }}/.bashrc"
+      when: find_kitty.failed
+      register: kitty_bashrc_backup
 
-- name: "ensure kitty installed"
-  ansible.builtin.shell:
-    cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
-    creates: "{{ ansible_user_dir }}/.local/bin/kitty"
-  when: find_kitty.failed
+    - name: "ensure kitty installed"
+      ansible.builtin.shell:
+        cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
+        creates: "{{ ansible_user_dir }}/.local/bin/kitty"
+      when: find_kitty.failed
 
-- name: "restore original bashrc"
-  ansible.builtin.command:
-    cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-  when: kitty_bashrc_backup is not skipped
+  always:
+    - name: "restore original bashrc"
+      ansible.builtin.command:
+        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
+      when: kitty_bashrc_backup is not skipped
 
 
 - name: "kitty executable symlink"
@@ -64,7 +67,6 @@
       # Space Gray Eighties
       include current-theme.conf
       # END_KITTY_THEME
-
 
 - name: "bashrc kitty"
   ansible.builtin.copy:

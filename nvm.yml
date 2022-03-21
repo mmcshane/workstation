@@ -4,33 +4,36 @@
     path: "{{ ansible_user_dir }}/.nvm"
   register: nvm_dir
 
-- name: "backup bashrc"
-  ansible.builtin.command:
-    cmd: mv "{{ ansible_user_dir }}/.bashrc" "{{ ansible_user_dir }}/.bashrc.bak"
-    removes: "{{ ansible_user_dir }}/.bashrc"
-  when: not nvm_dir.stat.exists
-  register: nvm_bashrc_backup
+- name: "install nvm protecting bashrc"
+  block:
+    - name: "backup bashrc"
+      ansible.builtin.command:
+        cmd: mv "{{ ansible_user_dir }}/.bashrc" "{{ ansible_user_dir }}/.bashrc.bak"
+        removes: "{{ ansible_user_dir }}/.bashrc"
+      when: not nvm_dir.stat.exists
+      register: nvm_bashrc_backup
 
-- name: "phony bashrc for nvm installer"
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    state: touch
-  when: nvm_bashrc_backup is not skipped
+    - name: "phony bashrc for nvm installer"
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/.bashrc"
+        state: touch
+      when: nvm_bashrc_backup is not skipped
 
-- name: "ensure nvm installed"
-  ansible.builtin.shell:
-    cmd: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-    creates: "{{ ansible_user_dir }}/.nvm"
+    - name: "ensure nvm installed"
+      ansible.builtin.shell:
+        cmd: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+        creates: "{{ ansible_user_dir }}/.nvm"
 
-- name: "nvm bashrc"
-  ansible.builtin.copy:
-    src: "{{ ansible_user_dir }}/.bashrc"
-    dest: "{{ ansible_user_dir }}/.bashrc.d/100.nvm.sh"
-    remote_src: yes
-  when: nvm_bashrc_backup is not skipped
+    - name: "nvm bashrc"
+      ansible.builtin.copy:
+        src: "{{ ansible_user_dir }}/.bashrc"
+        dest: "{{ ansible_user_dir }}/.bashrc.d/100.nvm.sh"
+        remote_src: yes
+      when: nvm_bashrc_backup is not skipped
 
-- name: "restore original bashrc"
-  ansible.builtin.command:
-    cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-  when: nvm_bashrc_backup is not skipped
+  always:
+    - name: "restore original bashrc"
+      ansible.builtin.command:
+        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
+      when: nvm_bashrc_backup is not skipped
 
