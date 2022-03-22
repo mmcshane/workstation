@@ -29,7 +29,8 @@
 - name: "kitty executable symlink"
   ansible.builtin.file:
     src: "{{ ansible_user_dir }}/.local/kitty.app/bin/kitty"
-    path: "{{ ansible_user_dir }}/.local/bin/"
+    path: "{{ ansible_user_dir }}/.local/bin/kitty"
+    state: link
 
 - name: "kitty desktop files"
   ansible.builtin.copy:
