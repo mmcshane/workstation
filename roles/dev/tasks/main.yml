@@ -1,0 +1,20 @@
+---
+- name: "Dev packages"
+  become: true
+  ansible.builtin.package:
+    name:
+      - build-essential
+      - curl
+      - direnv
+      - m4
+      - make
+      - shellcheck
+      - sqlite3
+
+- ansible.builtin.include_tasks:
+    file: "{{ path }}"
+    apply:
+      tags: "ubuntu"
+  loop: "{{ query('fileglob', '*.yml') | reject('contains', 'main.yml') }}"
+  loop_control:
+    loop_var: path

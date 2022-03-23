@@ -1,4 +1,9 @@
-
+---
+- name: "K8s packages"
+  become: true
+  ansible.builtin.package:
+    name:
+      - fzf
 
 - name: "find latest kubectl version"
   ansible.builtin.uri:

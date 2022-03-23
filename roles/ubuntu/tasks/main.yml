@@ -1,0 +1,29 @@
+---
+- name: "Apt update & upgrade"
+  become: true
+  ansible.builtin.apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+
+- name: "Base packages"
+  become: true
+  ansible.builtin.package:
+    name:
+      - lynx
+      - pandoc
+    state: latest
+
+- name: "Ensure Bitwarden CLI installed"
+  become: true
+  community.general.snap:
+    name: bw
+
+- ansible.builtin.include_tasks:
+    file: "{{ path }}"
+    apply:
+      tags: "ubuntu"
+  tags: always
+  loop: "{{ query('fileglob', '*.yml') | reject('contains', 'main.yml') }}"
+  loop_control:
+    loop_var: path

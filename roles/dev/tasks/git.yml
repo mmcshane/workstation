@@ -1,3 +1,9 @@
+- name: "Git packages"
+  become: true
+  ansible.builtin.package:
+    name:
+      - git
+      - tig
 
 - name: "user git config"
   ansible.builtin.copy:

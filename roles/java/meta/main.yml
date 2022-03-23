@@ -1,0 +1,7 @@
+galaxy_info:
+  author: Matt McShane
+  description: Prepare a workstation for Java development
+  license: CC-PDCC
+  min_ansible_version: 2.1
+  galaxy_tags: []
+dependencies: []

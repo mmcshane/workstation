@@ -1,49 +1,21 @@
 ---
-- name: "Manage workstation"
-  hosts: "localhost"
-  connection: "local"
-
-  vars:
-    go_version: "1.17.8"
-
-  tasks:
-    - name: "Apt update & upgrade"
-      become: true
-      ansible.builtin.apt:
-        upgrade: yes
-        update_cache: yes
-        cache_valid_time: 86400 #One day
-
-    - name: "Base packages"
-      become: true
-      ansible.builtin.package:
-        name:
-          - build-essential
-          - curl
-          - direnv
-          - fzf
-          - git
-          - lynx
-          - m4
-          - make
-          - pandoc
-          - shellcheck
-          - sqlite3
-          - tig
-          - vim-gtk3
-        state: latest
-
-    - name: "Ensure Bitwarden CLI installed"
-      become: true
-      community.general.snap:
-        name: bw
-
-    - ansible.builtin.include_tasks:
-        file: "{{ include_path }}"
-        apply:
-          tags: "{{ include_path | basename | splitext | first }}"
-      tags: always
-      loop: "{{ query('fileglob', '*.yml') | reject('search', 'workstation.yml') }}"
-      loop_control:
-        loop_var: include_path
-        
+- hosts: "localhost"
+  roles:
+    - role: ubuntu
+      tags: ubuntu
+    - role: dev
+      tags: dev
+    - role: k8s
+      tags: k8s
+    - role: aws
+      tags: aws
+    - role: java
+      tags: java
+    - role: go
+      tags: go
+      vars:
+        go_version: "1.17.8"
+    - role: node
+      tags: node
+    - role: rust
+      tags: rust

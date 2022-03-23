@@ -1,0 +1,35 @@
+- name: "vim packages"
+  become: true
+  ansible.builtin.package:
+    name:
+      - vim-gtk3
+
+- name: "vim config dir"
+  ansible.builtin.copy:
+    src: vim/
+    dest: "{{ ansible_user_dir }}/.config/vim"
+
+- name: "VIMINIT"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.vim.sh"
+    content: |
+      export VIMINIT="set nocp | source ${XDG_CONFIG_HOME:-$HOME/.config}/vim/vimrc"
+
+
+- name: "link .ideavimrc"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.ideavimrc"
+    src: "{{ ansible_user_dir }}/.config/vim/ideavimrc"
+    state: link
+
+- name: "vim plugins"
+  ansible.builtin.git:
+    depth: 1
+    repo: "{{ item.repo }}"
+    update: no
+    version: "{{ item.ref }}"
+    dest: "{{ ansible_user_dir }}/.config/vim/pack/plugins/start/{{ item.repo | urlsplit('path') | basename }}"
+  loop:
+    - { repo: "https://github.com/ctrlpvim/ctrlp.vim", ref: "HEAD" }
+    - { repo: "https://github.com/tpope/vim-fugitive", ref: "v3.6" }
+    - { repo: "https://github.com/tpope/vim-rhubarb", ref: "HEAD" }
