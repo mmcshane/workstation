@@ -22,7 +22,7 @@
 - ansible.builtin.include_tasks:
     file: "{{ path }}"
     apply:
-      tags: "ubuntu"
+      tags: "{{ path | basename | splitext | first }}"
   tags: always
   loop: "{{ query('fileglob', '*.yml') | reject('contains', 'main.yml') }}"
   loop_control:
