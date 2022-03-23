@@ -4,27 +4,11 @@
   register: find_kitty
   changed_when: no
 
-- name: "install kitty protecting bashrc"
-  block:
-    - name: "backup bashrc"
-      ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc {{ ansible_user_dir }}/.bashrc.bak
-        removes: "{{ ansible_user_dir }}/.bashrc"
-      when: find_kitty.failed
-      register: kitty_bashrc_backup
-
-    - name: "ensure kitty installed"
-      ansible.builtin.shell:
-        cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
-        creates: "{{ ansible_user_dir }}/.local/bin/kitty"
-      when: find_kitty.failed
-
-  always:
-    - name: "restore original bashrc"
-      ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-      when: kitty_bashrc_backup is not skipped
-
+- name: "ensure kitty installed"
+  ansible.builtin.shell:
+    cmd: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
+    creates: "{{ ansible_user_dir }}/.local/kitty.app/bin/kitty"
+  when: find_kitty.failed
 
 - name: "kitty executable symlink"
   ansible.builtin.file:
@@ -74,5 +58,3 @@
     dest: "{{ ansible_user_dir }}/.bashrc.d/100.kitty.sh"
     content: |
       source <(kitty + complete setup bash)
-
-
