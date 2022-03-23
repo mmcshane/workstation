@@ -1,5 +1,5 @@
 
-- name: "download go {{ version }}"
+- name: "download go {{ go_version }}"
   ansible.builtin.unarchive:
     src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
     remote_src: yes
@@ -22,7 +22,7 @@
     repo: "https://github.com/fatih/vim-go"
     update: no
     version: "v1.25"
-    dest: "{{ ansible_user_dir }}/.vim/pack/plugins/start/vim-go"
+    dest: "{{ ansible_user_dir }}/.config/vim/pack/plugins/start/vim-go"
 
 - name: "go.vim ftplugin"
   ansible.builtin.copy:
