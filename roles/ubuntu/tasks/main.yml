@@ -23,7 +23,6 @@
     file: "{{ path }}"
     apply:
       tags: "{{ path | basename | splitext | first }}"
-  tags: always
   loop: "{{ query('fileglob', '*.yml') | reject('contains', 'main.yml') }}"
   loop_control:
     loop_var: path
