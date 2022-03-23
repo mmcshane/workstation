@@ -11,3 +11,6 @@
      export SDKMAN_DIR="$HOME/.sdkman"
      [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
+- name: "install IDEA"
+  community.general.snap:
+    name: intellij-idea-ultimate

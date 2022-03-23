@@ -60,3 +60,6 @@
     path: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
     line: . "$(rustc --print sysroot)/etc/bash_completion.d/cargo"
 
+- name: "install CLion"
+  community.general.snap:
+    name: clion
