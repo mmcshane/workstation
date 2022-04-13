@@ -61,8 +61,17 @@
       "\e[A": history-search-backward
       "\e[B": history-search-forward
       set enable-bracketed-paste on
+      
+- name "xdg env"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/099.xdg.sh"
+    content: |
+      export XDG_CONFIG_HOME="$HOME/.config"
+      export XDG_CACHE_HOME="$HOME/.cache"
+      export XDG_STATE_HOME="$HOME/.local/state"
+      export XDG_DATA_HOME="$HOME/.local/share"
 
-- name: "xdg user dirs"
+- name: "xdg desktop dirs"
   ansible.builtin.copy:
     dest: "{{ ansible_user_dir }}/.config/user-dirs.dirs"
     content: |
