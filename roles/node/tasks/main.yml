@@ -1,7 +1,7 @@
 
 - name: "check for nvm install"
   ansible.builtin.stat:
-    path: "{{ ansible_user_dir }}/.nvm"
+    path: "{{ ansible_user_dir }}/.config/nvm"
   register: nvm_dir
 
 - name: "install nvm protecting bashrc"
@@ -22,7 +22,7 @@
     - name: "ensure nvm installed"
       ansible.builtin.shell:
         cmd: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-        creates: "{{ ansible_user_dir }}/.nvm"
+        creates: "{{ ansible_user_dir }}/.config/nvm"
 
     - name: "nvm bashrc"
       ansible.builtin.copy:

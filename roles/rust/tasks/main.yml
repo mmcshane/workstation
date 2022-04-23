@@ -32,13 +32,6 @@
       ansible.builtin.command: "{{ ansible_user_dir }}/.cargo/bin/rustup update"
       when: find_rustup.failed
 
-    - name: "bashrc cargo"
-      ansible.builtin.copy:
-        dest: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
-        src: "{{ ansible_user_dir }}/.bashrc"
-        remote_src: yes
-      when: rustup_dotfile_backup is not skipped
-
   always:
     - name: "restore original dotfiles"
       ansible.builtin.command:
@@ -49,17 +42,21 @@
         - "{{ ansible_user_dir }}/.profile"
       when: rustup_dotfile_backup is not skipped
 
+- name: "bashrc cargo"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
+    content: |
+      . "$HOME/.cargo/env"
+      . "$(rustc --print sysroot)/etc/bash_completion.d/cargo"
+
 - name: "rustup bashrc"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/100.rustup.sh"
+    dest: "{{ ansible_user_dir }}/.bashrc.d/101.rustup.sh"
     content:
       source <(rustup completions bash)
 
-- name: "cargo bash completions"
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
-    line: . "$(rustc --print sysroot)/etc/bash_completion.d/cargo"
-
 - name: "install CLion"
+  become: yes
   community.general.snap:
     name: clion
+    classic: yes

@@ -1,6 +1,6 @@
 
 - name: "check for aws cli install"
-  ansible.builtin.command: aws --version
+  ansible.builtin.command: "file {{ ansible_user_dir }}/.local/bin/aws"
   ignore_errors: yes
   register: find_aws
   changed_when: no

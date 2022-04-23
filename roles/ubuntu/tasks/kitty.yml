@@ -30,12 +30,12 @@
     line: "Icon={{ ansible_user_dir }}/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png"
   with_fileglob: "{{ ansible_user_dir }}/.local/share/applications/kitty*.desktop"
 
-- name: "fetch kitty theme"
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/SpaceGray_Eighties.conf
-    dest: "{{ ansible_user_dir }}/.config/kitty/current-theme.conf"
+- name: "kitty config dirs"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/kitty"
+    state: directory
 
-- name: "kitty config"
+- name: "kitty config file"
   ansible.builtin.copy:
     force: no
     dest: "{{ ansible_user_dir }}/.config/kitty/kitty.conf"
@@ -52,6 +52,11 @@
       # Space Gray Eighties
       include current-theme.conf
       # END_KITTY_THEME
+
+- name: "fetch kitty theme"
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/SpaceGray_Eighties.conf
+    dest: "{{ ansible_user_dir }}/.config/kitty/current-theme.conf"
 
 - name: "bashrc kitty"
   ansible.builtin.copy:

@@ -12,6 +12,8 @@
     name:
       - lynx
       - pandoc
+      - vim-gtk
+      - curl
     state: latest
 
 - name: "Ensure Bitwarden CLI installed"
