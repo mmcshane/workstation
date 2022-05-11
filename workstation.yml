@@ -13,8 +13,6 @@
       tags: java
     - role: go
       tags: go
-      vars:
-        go_version: "1.17.8"
     - role: node
       tags: node
     - role: rust
