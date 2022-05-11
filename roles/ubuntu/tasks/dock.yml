@@ -2,7 +2,7 @@
   ansible.builtin.include_tasks: dconf_set.yml.inc
   loop:
     - { key: /org/gnome/shell/extensions/dash-to-dock/dock-fixed,        value: "false" }
-    - { key: /org/gnome/shell/extensions/dash-to-dock/dock-position,     value: "'BOTTOM'" }
+    - { key: /org/gnome/shell/extensions/dash-to-dock/dock-position,     value: "\"'BOTTOM'\"" }
     - { key: /org/gnome/shell/extensions/dash-to-dock/extend-height,     value: "false" }
     - { key: /org/gnome/shell/extensions/dash-to-dock/intellihide,       value: "false" }
     - { key: /org/gnome/shell/extensions/dash-to-dock/multi-monitor,     value: "true" }
