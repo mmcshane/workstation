@@ -44,14 +44,14 @@
 
 - name: "bashrc cargo"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/100.cargo.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/100.cargo.sh"
     content: |
       . "$HOME/.cargo/env"
       . "$(rustc --print sysroot)/etc/bash_completion.d/cargo"
 
 - name: "rustup bashrc"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/101.rustup.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/101.rustup.sh"
     content:
       source <(rustup completions bash)
 

@@ -1,6 +1,6 @@
-- name: "~/.bashrc.d"
+- name: "~/.config/bash"
   ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.bashrc.d"
+    path: "{{ ansible_user_dir }}/.config/bash"
     state: directory
 
 - name: "~/.local/bin"
@@ -31,7 +31,7 @@
 
 - name: "bashrc pathutil"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/010.pathutil.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/010.pathutil.sh"
     content: |
       path_prepend() {
         local aux=":${!1}:"
@@ -53,13 +53,13 @@
 
 - name: "bashrc path"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/020.path.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/020.path.sh"
     content: |
       path_prepend PATH "{{ ansible_user_dir }}/.local/bin"
 
 - name: "bashrc history"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/100.history.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/100.history.sh"
     content: |
       export HISTCONTROL=ignoreboth:erasedups
       export HISTSIZE=10000
@@ -76,7 +76,7 @@
 
 - name: "xdg env"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/080.xdg.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/080.xdg.sh"
     content: |
       export XDG_CONFIG_HOME="$HOME/.config"
       export XDG_CACHE_HOME="$HOME/.cache"

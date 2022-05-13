@@ -1,6 +1,6 @@
 - name: "direnv bashrc"
   tags: direnv
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/100.direnv.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/100.direnv.sh"
     content: |
       eval "$(direnv hook bash)"

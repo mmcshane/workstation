@@ -11,7 +11,7 @@
 
 - name: "bashrc go"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.bashrc.d/100.go.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/100.go.sh"
     content: |
       export GOPATH="$XDG_DATA_HOME/go"
       path_prepend PATH "$HOME/.local/go{{ go_version }}/bin"
