@@ -13,8 +13,9 @@
   ansible.builtin.copy:
     dest: "{{ ansible_user_dir }}/.bashrc.d/100.go.sh"
     content: |
+      export GOPATH="$XDG_DATA_HOME/go"
       path_prepend PATH "$HOME/.local/go{{ go_version }}/bin"
-      path_prepend PATH "$HOME/go/bin"
+      path_prepend PATH "$GOPATH/bin"
 
 - name: "vim-go plugin"
   ansible.builtin.git:
