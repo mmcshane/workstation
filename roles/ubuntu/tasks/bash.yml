@@ -9,13 +9,25 @@
     state: directory
     recurse: true
 
+- name: "~/.config/bash/"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/bash"
+    state: directory
+    recurse: true
+
 - name: "~/.bashrc"
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
     block: |
-      for f in ~/.bashrc.d/*.sh; do 
+      for f in ~/.config/bash/*.sh; do
         source "$f"
       done
+
+- name: "bashrc skel"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/000.skel.sh"
+    src: /etc/skel/.bashrc
+    state: link
 
 - name: "bashrc pathutil"
   ansible.builtin.copy:
@@ -24,7 +36,7 @@
       path_prepend() {
         local aux=":${!1}:"
         aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
-        printf -v "$1" '%s' "${2}${aux:+:}${aux}"  
+        printf -v "$1" '%s' "${2}${aux:+:}${aux}"
       }
 
       path_append() {
@@ -37,7 +49,7 @@
         local aux=":${!1}:"
         aux=${aux//:$2:/:}; aux=${aux#:}; aux=${aux%:}
         printf -v "$1" '%s' "$aux"
-      } 
+      }
 
 - name: "bashrc path"
   ansible.builtin.copy:
@@ -61,7 +73,7 @@
       "\e[A": history-search-backward
       "\e[B": history-search-forward
       set enable-bracketed-paste on
-      
+
 - name: "xdg env"
   ansible.builtin.copy:
     dest: "{{ ansible_user_dir }}/.bashrc.d/080.xdg.sh"
@@ -76,7 +88,7 @@
     dest: "{{ ansible_user_dir }}/.config/user-dirs.dirs"
     content: |
       XDG_DESKTOP_DIR="$HOME/"
-      XDG_DOWNLOAD_DIR="$HOME/"
+      XDG_DOWNLOAD_DIR="/tmp"
       XDG_TEMPLATES_DIR="$HOME/"
       XDG_PUBLICSHARE_DIR="$HOME/"
       XDG_DOCUMENTS_DIR="$HOME/"
