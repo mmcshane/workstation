@@ -21,7 +21,7 @@
 
     - name: "ensure nvm installed"
       ansible.builtin.shell:
-        cmd: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+        cmd: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | NVM_DIR={{ ansible_user_dir }}/.config/nvm bash"
         creates: "{{ ansible_user_dir }}/.config/nvm"
 
     - name: "nvm bashrc"
