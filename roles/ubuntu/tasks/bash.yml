@@ -60,7 +60,7 @@
       export HISTCONTROL=ignoreboth:erasedups
       export HISTSIZE=10000
       export HISTIGNORE="clear:cd:cd -:cd ..:exit:date:w:* --help:"
-      export HISTFILE="$XDG_CACHE_HOME/bash_history"
+      export HISTFILE="${XDG_CACHE_HOME:-"$HOME/.cache"}/bash_history"
 
 - name: "readline config dir"
   ansible.builtin.file:
@@ -80,7 +80,7 @@
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.readline.sh"
     content: |
-      export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
+      export INPUTRC="${XDG_CONFIG_HOME:-"$HOME/.config"}"/readline/inputrc
 
 - name: "xdg env"
   ansible.builtin.copy:
@@ -108,10 +108,10 @@
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.gnupg.sh"
     content: |
-      export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+      export GNUPGHOME="${XDG_DATA_HOME:-"$HOME/.local/share"}/gnupg"
 
 - name: "wget bashrc"
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.wget.sh"
     content: |
-      alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
+      alias wget=wget --hsts-file="${XDG_DATA_HOME:-"$HOME/.local/share"}/wget-hsts"
