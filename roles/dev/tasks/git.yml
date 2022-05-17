@@ -7,12 +7,12 @@
 
 - name: "git config dir"
   ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.config/git/"
+    path: "{{ xdg_config_home }}/git/"
     state: directory
 
 - name: "user git config"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/git/config"
+    dest: "{{ xdg_config_home }}/git/config"
     content: |
       [user]
           name = Matt McShane
@@ -26,5 +26,5 @@
 
 - name: "XDG_DATA_HOME/tig"
   ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.local/share/tig"
+    path: "{{ xdg_data_home }}/tig"
     state: directory

@@ -3,9 +3,9 @@
   ansible.builtin.unarchive:
     src: https://download.jetbrains.com/fonts/JetBrainsMono-2.242.zip
     remote_src: yes
-    dest: "{{ ansible_user_dir }}/.local/share/"
+    dest: "{{ xdg_data_home }}/"
     include: fonts/*
-    creates: "{{ ansible_user_dir }}/.local/share/fonts/ttf/JetBrainsMono-Regular.ttf"
+    creates: "{{ xdg_data_home }}/fonts/ttf/JetBrainsMono-Regular.ttf"
   register: jetbrains_mono
 
 - name: "reload font cache"

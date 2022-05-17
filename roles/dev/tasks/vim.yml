@@ -7,11 +7,11 @@
 - name: "vim config dir"
   ansible.builtin.copy:
     src: vim/
-    dest: "{{ ansible_user_dir }}/.config/vim"
+    dest: "{{ xdg_config_home }}/vim"
 
 - name: "VIMINIT"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/100.vim.sh"
+    dest: "{{ xdg_config_home }}/bash/100.vim.sh"
     content: |
       export VIMINIT="set nocp | source ${XDG_CONFIG_HOME:-$HOME/.config}/vim/vimrc"
 
@@ -19,7 +19,7 @@
 - name: "link .ideavimrc"
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.ideavimrc"
-    src: "{{ ansible_user_dir }}/.config/vim/ideavimrc"
+    src: "{{ xdg_config_home }}/vim/ideavimrc"
     state: link
 
 - name: "vim plugins"
@@ -28,7 +28,7 @@
     repo: "{{ item.repo }}"
     update: no
     version: "{{ item.ref }}"
-    dest: "{{ ansible_user_dir }}/.config/vim/pack/plugins/start/{{ item.repo | urlsplit('path') | basename }}"
+    dest: "{{ xdg_config_home }}/vim/pack/plugins/start/{{ item.repo | urlsplit('path') | basename }}"
   loop:
     - { repo: "https://github.com/ctrlpvim/ctrlp.vim", ref: "HEAD" }
     - { repo: "https://github.com/tpope/vim-fugitive", ref: "v3.6" }

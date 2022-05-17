@@ -4,22 +4,17 @@
     state: directory
     recurse: true
 
-- name: "~/.config/bash"
+- name: "~/.config/bash/"
   ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.config/bash"
+    path: "{{ xdg_config_home }}/bash"
     state: directory
+    recurse: true
 
 - name: "bashrc skel"
   ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.config/bash/000.skel.sh"
+    path: "{{ xdg_config_home }}/bash/000.skel.sh"
     src: /etc/skel/.bashrc
     state: link
-
-- name: "~/.config/bash/"
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.config/bash"
-    state: directory
-    recurse: true
 
 - name: "~/.bashrc"
   ansible.builtin.copy:
@@ -32,7 +27,7 @@
 
 - name: "bashrc pathutil"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/010.pathutil.sh"
+    dest: "{{ xdg_config_home }}/bash/010.pathutil.sh"
     content: |
       path_prepend() {
         local aux=":${!1}:"
@@ -54,13 +49,13 @@
 
 - name: "bashrc path"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/020.path.sh"
+    dest: "{{ xdg_config_home }}/bash/020.path.sh"
     content: |
       path_prepend PATH "{{ ansible_user_dir }}/.local/bin"
 
 - name: "bashrc history"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/100.history.sh"
+    dest: "{{ xdg_config_home }}/bash/100.history.sh"
     content: |
       export HISTCONTROL=ignoreboth:erasedups
       export HISTSIZE=10000
@@ -69,12 +64,12 @@
 
 - name: "readline config dir"
   ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.config/readline/"
+    path: "{{ xdg_config_home }}/readline/"
     state: directory
 
 - name: "readline inputrc"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/readline/inputrc"
+    dest: "{{ xdg_config_home }}/readline/inputrc"
     content: |
       $include /etc/inputrc
       "\e[A": history-search-backward
@@ -83,13 +78,13 @@
 
 - name: "readline bashrc"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/100.readline.sh"
+    dest: "{{ xdg_config_home }}/bash/100.readline.sh"
     content: |
       export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
 
 - name: "xdg env"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/080.xdg.sh"
+    dest: "{{ xdg_config_home }}/bash/080.xdg.sh"
     content: |
       export XDG_CONFIG_HOME="$HOME/.config"
       export XDG_CACHE_HOME="$HOME/.cache"
@@ -98,7 +93,7 @@
 
 - name: "xdg desktop dirs"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/user-dirs.dirs"
+    dest: "{{ xdg_config_home }}/user-dirs.dirs"
     content: |
       XDG_DESKTOP_DIR="$HOME/"
       XDG_DOWNLOAD_DIR="/tmp"
@@ -111,12 +106,12 @@
 
 - name: "gnupg bashrc"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/100.gnupg.sh"
+    dest: "{{ xdg_config_home }}/bash/100.gnupg.sh"
     content: |
       export GNUPGHOME="$XDG_DATA_HOME"/gnupg
 
 - name: "wget bashrc"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/100.wget.sh"
+    dest: "{{ xdg_config_home }}/bash/100.wget.sh"
     content: |
       alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
