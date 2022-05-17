@@ -1,39 +1,17 @@
+- name: "nvm bashrc"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.config/bash/100.nvm.sh"
+    content: ''
+    force: no
 
-- name: "check for nvm install"
-  ansible.builtin.stat:
-    path: "{{ ansible_user_dir }}/.config/nvm"
-  register: nvm_dir
+- name: "ensure nvm installed"
+  ansible.builtin.shell:
+    cmd: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | NVM_DIR={{ ansible_user_dir }}/.config/nvm PROFILE={{ ansible_user_dir }}/.config/bash/100.nvm.sh bash"
+    creates: "{{ ansible_user_dir }}/.config/nvm"
 
-- name: "install nvm protecting bashrc"
-  block:
-    - name: "backup bashrc"
-      ansible.builtin.command:
-        cmd: mv "{{ ansible_user_dir }}/.bashrc" "{{ ansible_user_dir }}/.bashrc.bak"
-        removes: "{{ ansible_user_dir }}/.bashrc"
-      when: not nvm_dir.stat.exists
-      register: nvm_bashrc_backup
-
-    - name: "phony bashrc for nvm installer"
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.bashrc"
-        state: touch
-      when: nvm_bashrc_backup is not skipped
-
-    - name: "ensure nvm installed"
-      ansible.builtin.shell:
-        cmd: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | NVM_DIR={{ ansible_user_dir }}/.config/nvm bash"
-        creates: "{{ ansible_user_dir }}/.config/nvm"
-
-    - name: "nvm bashrc"
-      ansible.builtin.copy:
-        src: "{{ ansible_user_dir }}/.bashrc"
-        dest: "{{ ansible_user_dir }}/.config/bash/100.nvm.sh"
-        remote_src: yes
-      when: nvm_bashrc_backup is not skipped
-
-  always:
-    - name: "restore original bashrc"
-      ansible.builtin.command:
-        cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
-      when: nvm_bashrc_backup is not skipped
+- name: "node bashrc"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.config/bash/100.node.sh"
+    content: |
+      export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
 
