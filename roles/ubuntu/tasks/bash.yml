@@ -1,13 +1,19 @@
-- name: "~/.config/bash"
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.config/bash"
-    state: directory
-
 - name: "~/.local/bin"
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/bin"
     state: directory
     recurse: true
+
+- name: "~/.config/bash"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/bash"
+    state: directory
+
+- name: "bashrc skel"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/bash/000.skel.sh"
+    src: /etc/skel/.bashrc
+    state: link
 
 - name: "~/.config/bash/"
   ansible.builtin.file:
@@ -16,18 +22,13 @@
     recurse: true
 
 - name: "~/.bashrc"
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    block: |
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.bashrc"
+    force: yes
+    content: |
       for f in ~/.config/bash/*.sh; do
         source "$f"
       done
-
-- name: "bashrc skel"
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/000.skel.sh"
-    src: /etc/skel/.bashrc
-    state: link
 
 - name: "bashrc pathutil"
   ansible.builtin.copy:
