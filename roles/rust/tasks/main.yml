@@ -1,58 +1,17 @@
-- name: "check for rustup install"
-  ansible.builtin.command: rustup --version
-  ignore_errors: yes
-  register: find_rustup
-  changed_when: no
+- name: "install rustup"
+  ansible.builtin.shell:
+    cmd: curl https://sh.rustup.rs -sSf | CARGO_HOME={{ ansible_user_dir }}/.local/share/cargo RUSTUP_HOME={{ansible_user_dir }}/.local/share/rustup sh -s -- -y --no-modify-path
+    creates: "{{ ansible_user_dir }}/.local/share/rustup"
+  register: install
 
-- name: "install rust protecting dotfiles"
-  block:
-    - name: "backup dotfiles"
-      ansible.builtin.command:
-        cmd: mv {{ item }} {{ item }}.bak
-        removes: "{{ item }}"
-      loop:
-        - "{{ ansible_user_dir }}/.bashrc"
-        - "{{ ansible_user_dir }}/.profile"
-      when: find_rustup.failed
-      register: rustup_dotfile_backup
-
-    - name: "phony bashrc for rustup update"
-      ansible.builtin.file:
-        path: "{{ ansible_user_dir }}/.bashrc"
-        state: touch
-      when: rustup_dotfile_backup is not skipped
-
-    - name: "install rustup"
-      ansible.builtin.shell:
-        cmd: curl https://sh.rustup.rs -sSf | sh -s -- -y
-        creates: "{{ ansible_user_dir }}/.cargo/bin/rustup"
-      when: find_rustup.failed
-
-    - name: "rustup update"
-      ansible.builtin.command: "{{ ansible_user_dir }}/.cargo/bin/rustup update"
-      when: find_rustup.failed
-
-  always:
-    - name: "restore original dotfiles"
-      ansible.builtin.command:
-        cmd: mv {{ item }}.bak {{ item }}
-        removes: "{{ item }}.bak"
-      loop:
-        - "{{ ansible_user_dir }}/.bashrc"
-        - "{{ ansible_user_dir }}/.profile"
-      when: rustup_dotfile_backup is not skipped
-
-- name: "bashrc cargo"
+- name: "bashrc rust"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/100.cargo.sh"
+    dest: "{{ ansible_user_dir }}/.config/bash/100.rust.sh"
     content: |
-      . "$HOME/.cargo/env"
+      export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+      export CARGO_HOME="$XDG_DATA_HOME/cargo"
+      . "$CARGO_HOME/env"
       . "$(rustc --print sysroot)/etc/bash_completion.d/cargo"
-
-- name: "rustup bashrc"
-  ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.config/bash/101.rustup.sh"
-    content:
       source <(rustup completions bash)
 
 - name: "install CLion"
