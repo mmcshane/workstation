@@ -24,3 +24,7 @@
       [includeIf "gitdir:~/temporalio/"]
           path = ~/temporalio/.gitconfig
 
+- name: "XDG_DATA_HOME/tig"
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.local/share/tig"
+    state: directory
