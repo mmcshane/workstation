@@ -65,6 +65,7 @@
       export HISTCONTROL=ignoreboth:erasedups
       export HISTSIZE=10000
       export HISTIGNORE="clear:cd:cd -:cd ..:exit:date:w:* --help:"
+      export HISTFILE="$XDG_CACHE_HOME/bash_history"
 
 - name: "readline config dir"
   ansible.builtin.file:
