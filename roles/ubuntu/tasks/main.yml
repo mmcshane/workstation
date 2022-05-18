@@ -14,6 +14,7 @@
       - pandoc
       - vim-gtk
       - curl
+      - libpam-tmpdir
     state: latest
 
 - name: "Ensure Bitwarden CLI installed"
