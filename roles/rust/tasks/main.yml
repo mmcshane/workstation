@@ -1,7 +1,10 @@
 - name: "install rustup"
   ansible.builtin.shell:
-    cmd: curl https://sh.rustup.rs -sSf | CARGO_HOME={{ xdg_data_home }}/cargo RUSTUP_HOME={{ xdg_data_home }}/rustup sh -s -- -y --no-modify-path
+    cmd: curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path
     creates: "{{ xdg_data_home }}/rustup"
+  environment:
+    RUSTUP_HOME: "{{ xdg_data_home }}/rustup"
+    CARGO_HOME: "{{ xdg_data_home }}/cargo"
   register: install
 
 - name: "bashrc rust"

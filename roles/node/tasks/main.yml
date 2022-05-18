@@ -6,8 +6,11 @@
 
 - name: "ensure nvm installed"
   ansible.builtin.shell:
-    cmd: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | NVM_DIR={{ xdg_config_home }}/nvm PROFILE={{ xdg_config_home }}/bash/100.nvm.sh bash"
+    cmd: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
     creates: "{{ xdg_config_home }}/nvm"
+  environment:
+    NVM_DIR: "{{ xdg_config_home }}/nvm"
+    PROFILE: "{{ xdg_config_home }}/bash/100.nvm.sh"
 
 - name: "node bashrc"
   ansible.builtin.copy:
