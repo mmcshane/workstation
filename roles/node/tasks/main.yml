@@ -4,13 +4,24 @@
     content: ''
     force: no
 
-- name: "ensure nvm installed"
+- name: "XDG_DATA_HOME/nvm dir"
+  ansible.builtin.file:
+    path: "{{ xdg_data_home }}/nvm"
+    state: directory
+  register: mkdir_nvm
+
+- name: "install nvm v{{ nvm_version }}"
   ansible.builtin.shell:
-    cmd: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
-    creates: "{{ xdg_config_home }}/nvm"
+    cmd: "curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_version }}/install.sh | bash"
+  when: mkdir_nvm.changed
   environment:
-    NVM_DIR: "{{ xdg_config_home }}/nvm"
+    NVM_DIR: "{{ xdg_data_home }}/nvm"
     PROFILE: "{{ xdg_config_home }}/bash/100.nvm.sh"
+
+- name: "nvm bash completion"
+  ansible.builtin.lineinfile:
+    line: '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
+    path: "{{ xdg_config_home }}/bash/100.nvm.sh"
 
 - name: "node bashrc"
   ansible.builtin.copy:
