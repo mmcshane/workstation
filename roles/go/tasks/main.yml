@@ -3,8 +3,8 @@
   ansible.builtin.unarchive:
     src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
     remote_src: yes
-    dest: "{{ ansible_user_dir }}/.local/"
-    creates: "{{ ansible_user_dir }}/.local/go{{ go_version }}"
+    dest: "{{ xdg_data_home }}/"
+    creates: "{{ xdg_data_home }}/go{{ go_version }}"
     extra_opts:
       - "--transform"
       - "s/^go/go{{ go_version }}/"
@@ -14,7 +14,7 @@
     dest: "{{ xdg_config_home }}/bash/100.go.sh"
     content: |
       export GOPATH="${XDG_DATA_HOME:-"$HOME/.local/share"}/go"
-      path_prepend PATH "$HOME/.local/go{{ go_version }}/bin"
+      path_prepend PATH "${XDG_DATA_HOME:-"$HOME/.local/share"}/go{{ go_version }}/bin"
       path_prepend PATH "$GOPATH/bin"
 
 - name: "vim-go plugin"
