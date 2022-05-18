@@ -18,7 +18,7 @@
       source <(rustup completions bash)
 
 - name: "install CLion"
-  become: yes
+  become: true
   community.general.snap:
     name: clion
-    classic: yes
+    classic: true

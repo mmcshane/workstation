@@ -19,7 +19,7 @@
 - name: "~/.bashrc"
   ansible.builtin.copy:
     dest: "{{ ansible_user_dir }}/.bashrc"
-    force: yes
+    force: true
     content: |
       for f in ~/.config/bash/*.sh; do
         source "$f"
@@ -118,6 +118,6 @@
 
 - name: "wget hsts config"
   ansible.builtin.lineinfile:
-    create: yes
+    create: true
     line: "hsts-file = {{ xdg_cache_home }}/wget-hsts"
     path: "{{ xdg_config_home }}/wgetrc"

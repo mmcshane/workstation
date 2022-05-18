@@ -1,7 +1,7 @@
 - name: "check for zoom install"
   ansible.builtin.command: which zoom
-  changed_when: no
-  ignore_errors: yes
+  changed_when: false
+  ignore_errors: true
   register: find_zoom
 
 - name: "install zoom"

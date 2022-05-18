@@ -1,8 +1,8 @@
 - name: "check for kitty install"
   ansible.builtin.command: kitty --version
-  ignore_errors: yes
+  ignore_errors: true
   register: find_kitty
-  changed_when: no
+  changed_when: false
 
 - name: "ensure kitty installed"
   ansible.builtin.shell:
@@ -20,7 +20,7 @@
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ xdg_data_home }}/applications/"
-    force: no
+    force: false
   with_fileglob: "{{ ansible_user_dir }}/.local/kitty.app/share/applications/kitty*.desktop"
 
 - name: "kitty desktop icon"
@@ -37,16 +37,16 @@
 
 - name: "kitty config file"
   ansible.builtin.copy:
-    force: no
+    force: false
     dest: "{{ xdg_config_home }}/kitty/kitty.conf"
     content: |
       font_family          Jetbrains Mono
       font_size            11.0
-      enable_audio_bell    no
+      enable_audio_bell    false
       tab_bar_edge         top
       tab_bar_style        powerline
       shell_integration    disabled
-      allow_remote_control yes
+      allow_remote_control true
 
       # BEGIN_KITTY_THEME
       # Space Gray Eighties

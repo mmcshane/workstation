@@ -11,7 +11,7 @@
      [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
 
 - name: "install IDEA"
-  become: yes
+  become: true
   community.general.snap:
     name: intellij-idea-ultimate
-    classic: yes
+    classic: true

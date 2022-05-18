@@ -8,9 +8,9 @@
 - name: "find latest kubectl version"
   ansible.builtin.uri:
     url: https://dl.k8s.io/release/stable.txt
-    return_content: yes
+    return_content: true
   register: kubectl_release
-  changed_when: no
+  changed_when: false
 
 - name: "ensure kubectl installed"
   ansible.builtin.get_url:
@@ -30,7 +30,7 @@
 - name: "ensure kubectx installed"
   ansible.builtin.unarchive:
     src: https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubectx_v0.9.4_linux_x86_64.tar.gz
-    remote_src: yes
+    remote_src: true
     dest: "{{ ansible_user_dir }}/.local/bin/"
     creates: "{{ ansible_user_dir }}/.local/bin/kubectx"
     include: kubectx
@@ -38,7 +38,7 @@
 - name: "ensure kubens installed"
   ansible.builtin.unarchive:
     src: https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubens_v0.9.4_linux_x86_64.tar.gz
-    remote_src: yes
+    remote_src: true
     dest: "{{ ansible_user_dir }}/.local/bin/"
     creates: "{{ ansible_user_dir }}/.local/bin/kubens"
     include: kubens

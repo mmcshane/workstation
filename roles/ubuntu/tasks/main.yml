@@ -2,8 +2,8 @@
 - name: "Apt update & upgrade"
   become: true
   ansible.builtin.apt:
-    upgrade: yes
-    update_cache: yes
+    upgrade: true
+    update_cache: true
     cache_valid_time: 86400 #One day
 
 - name: "Base packages"

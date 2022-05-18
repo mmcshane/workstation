@@ -2,7 +2,7 @@
 - name: "download go {{ go_version }}"
   ansible.builtin.unarchive:
     src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
-    remote_src: yes
+    remote_src: true
     dest: "{{ xdg_data_home }}/"
     creates: "{{ xdg_data_home }}/go{{ go_version }}"
     extra_opts:
@@ -21,7 +21,7 @@
   ansible.builtin.git:
     depth: 1
     repo: "https://github.com/fatih/vim-go"
-    update: no
+    update: false
     version: "v1.26"
     dest: "{{ xdg_config_home }}/vim/pack/plugins/start/vim-go"
 

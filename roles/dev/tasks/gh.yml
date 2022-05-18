@@ -7,14 +7,14 @@
 
 - name: "add gh repository"
   tags: gh
-  become: yes
+  become: true
   ansible.builtin.apt_repository:
     repo: deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main
-    update_cache: yes
+    update_cache: true
 
 - name: "ensure gh installed"
   tags: gh
-  become: yes
+  become: true
   ansible.builtin.package:
     name: gh
 

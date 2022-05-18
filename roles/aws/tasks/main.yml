@@ -1,9 +1,9 @@
 
 - name: "check for aws cli install"
   ansible.builtin.command: "file {{ ansible_user_dir }}/.local/bin/aws"
-  ignore_errors: yes
+  ignore_errors: true
   register: find_aws
-  changed_when: no
+  changed_when: false
 
 - name: "set up a temp dir"
   ansible.builtin.tempfile:
@@ -16,7 +16,7 @@
   ansible.builtin.unarchive:
     src: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
     dest: "{{ aws_download_dir.path }}"
-    remote_src: yes
+    remote_src: true
   when: find_aws.failed
 
 - name: "install aws cli"
