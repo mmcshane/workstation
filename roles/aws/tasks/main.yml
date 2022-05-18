@@ -1,4 +1,3 @@
-
 - name: "check for aws cli install"
   ansible.builtin.command: "file {{ ansible_user_dir }}/.local/bin/aws"
   ignore_errors: true
@@ -20,7 +19,7 @@
   when: find_aws.failed
 
 - name: "install aws cli"
-  ansible.builtin.command: 
+  ansible.builtin.command:
     cmd: "{{ aws_download_dir.path }}/aws/install -i {{ ansible_user_dir }}/.local/aws-cli -b {{ ansible_user_dir }}/.local/bin"
     creates: "{{ ansible_user_dir }}/.local/bin/aws"
   when: find_aws.failed
@@ -36,4 +35,3 @@
     dest: "{{ xdg_config_home }}/bash/100.aws.sh"
     content: |
       complete -C "$HOME/.local/bin/aws_completer" aws
-

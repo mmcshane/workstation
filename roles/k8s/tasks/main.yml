@@ -1,4 +1,3 @@
----
 - name: "K8s packages"
   become: true
   ansible.builtin.package:
@@ -42,4 +41,3 @@
     dest: "{{ ansible_user_dir }}/.local/bin/"
     creates: "{{ ansible_user_dir }}/.local/bin/kubens"
     include: kubens
-

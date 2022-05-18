@@ -30,6 +30,6 @@
     version: "{{ item.ref }}"
     dest: "{{ xdg_config_home }}/vim/pack/plugins/start/{{ item.repo | urlsplit('path') | basename }}"
   loop:
-    - { repo: "https://github.com/ctrlpvim/ctrlp.vim", ref: "HEAD" }
-    - { repo: "https://github.com/tpope/vim-fugitive", ref: "v3.6" }
-    - { repo: "https://github.com/tpope/vim-rhubarb", ref: "HEAD" }
+    - {repo: "https://github.com/ctrlpvim/ctrlp.vim", ref: "HEAD"}
+    - {repo: "https://github.com/tpope/vim-fugitive", ref: "v3.6"}
+    - {repo: "https://github.com/tpope/vim-rhubarb", ref: "HEAD"}

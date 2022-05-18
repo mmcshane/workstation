@@ -1,4 +1,3 @@
-
 - name: "download go {{ go_version }}"
   ansible.builtin.unarchive:
     src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz

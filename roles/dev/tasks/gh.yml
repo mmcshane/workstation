@@ -1,7 +1,7 @@
 - name: "gh cli repo key"
   tags: gh
   become: true
-  ansible.builtin.get_url: 
+  ansible.builtin.get_url:
     url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
     dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
 
@@ -23,5 +23,3 @@
     dest: "{{ xdg_config_home }}/bash/100.gh.sh"
     content: |
       eval "$(gh completion -s bash)"
-
-

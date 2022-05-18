@@ -1,4 +1,3 @@
-
 - name: "install Jetbrains Mono"
   ansible.builtin.unarchive:
     src: https://download.jetbrains.com/fonts/JetBrainsMono-2.242.zip
@@ -11,5 +10,3 @@
 - name: "reload font cache"
   ansible.builtin.command: fc-cache -f -v
   when: jetbrains_mono.changed
-
-
