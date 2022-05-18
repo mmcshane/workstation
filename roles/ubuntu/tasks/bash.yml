@@ -114,4 +114,10 @@
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.wget.sh"
     content: |
-      alias wget=wget --hsts-file="${XDG_DATA_HOME:-"$HOME/.local/share"}/wget-hsts"
+      export WGETRC="${XDG_CONFIG_HOME:-"$HOME/.config"}/wgetrc"
+
+- name: "wget hsts config"
+  ansible.builtin.lineinfile:
+    create: yes
+    line: "hsts-file = {{ xdg_cache_home }}/wget-hsts"
+    path: "{{ xdg_config_home }}/wgetrc"
