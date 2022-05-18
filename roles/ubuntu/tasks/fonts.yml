@@ -5,8 +5,5 @@
     dest: "{{ xdg_data_home }}/"
     include: fonts/*
     creates: "{{ xdg_data_home }}/fonts/ttf/JetBrainsMono-Regular.ttf"
-  register: jetbrains_mono
-
-- name: "reload font cache"
-  ansible.builtin.command: fc-cache -f -v
-  when: jetbrains_mono.changed
+  notify:
+    - reload font cache
