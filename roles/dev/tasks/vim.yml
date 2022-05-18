@@ -15,12 +15,10 @@
     content: |
       export VIMINIT="set nocp | source ${XDG_CONFIG_HOME:-$HOME/.config}/vim/vimrc"
 
-
-- name: "link .ideavimrc"
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.ideavimrc"
-    src: "{{ xdg_config_home }}/vim/ideavimrc"
-    state: link
+- name: "ideavimrc"
+  ansible.builtin.copy:
+    src: ideavimrc
+    dest: "{{ xdg_config_home }}/ideavim/"
 
 - name: "vim plugins"
   ansible.builtin.git:
