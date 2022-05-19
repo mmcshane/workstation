@@ -1,0 +1,11 @@
+- name: "sdkman bashrc"
+  listen: "sdkman installed"
+  ansible.builtin.copy:
+    src: "{{ ansible_user_dir }}/.bashrc"
+    dest: "{{ xdg_config_home }}/bash/100.sdkman.sh"
+
+- name: "restore bashrc"
+  listen: "sdkman installed"
+  ansible.builtin.command: 
+    cmd: mv {{ ansible_user_dir }}/.bashrc.bak {{ ansible_user_dir }}/.bashrc
+    removes: "{{ ansible_user_dir }}/.bashrc.bak"
