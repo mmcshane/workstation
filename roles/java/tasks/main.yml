@@ -6,7 +6,11 @@
 
 - name: "install sdkman"
   ansible.builtin.shell:
-    cmd: unshare -Urm sh -c 'mount --bind {{ xdg_config_home }}/bash/100.sdkman.sh {{ ansible_user_dir }}/.bashrc && curl -s "https://get.sdkman.io" | SDKMAN_DIR={{ xdg_data_home }}/sdkman bash'
+    cmd: |
+      unshare -Urm <<EOF
+        mount --bind {{ xdg_config_home }}/bash/100.sdkman.sh {{ ansible_user_dir }}/.bashrc
+        curl -s "https://get.sdkman.io" | SDKMAN_DIR={{ xdg_data_home }}/sdkman bash
+      EOF
     creates: "{{ xdg_data_home }}/sdkman"
 
 - name: "install IDEA"
