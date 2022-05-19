@@ -1,8 +1,13 @@
+- name: "create sdkman bashrc"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/bash/100.sdkman.sh"
+    content: ""
+    force: false
+
 - name: "install sdkman"
   ansible.builtin.shell:
-    cmd: mv ~/.bashrc ~/.bashrc.bak && curl -s "https://get.sdkman.io" | SDKMAN_DIR={{ xdg_data_home }}/sdkman bash
+    cmd: unshare -Urm sh -c 'mount --bind {{ xdg_config_home }}/bash/100.sdkman.sh {{ ansible_user_dir }}/.bashrc && curl -s "https://get.sdkman.io" | SDKMAN_DIR={{ xdg_data_home }}/sdkman bash'
     creates: "{{ xdg_data_home }}/sdkman"
-  notify: sdkman installed
 
 - name: "install IDEA"
   become: true
