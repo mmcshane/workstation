@@ -47,6 +47,7 @@
       tab_bar_style        powerline
       shell_integration    disabled
       allow_remote_control true
+      linux_display_server x11
 
       # BEGIN_KITTY_THEME
       # Space Gray Eighties
