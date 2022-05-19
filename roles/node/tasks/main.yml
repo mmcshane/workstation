@@ -31,3 +31,8 @@
       export NPM_PREFIX="${XDG_DATA_HOME:-"$HOME/.local/share"}/npm"
       export NPM_CACHE="${XDG_CACHE_HOME:-"$HOME/.cache"}/npm"
       export NPM_TMP="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp/user/$UID}}/npm"
+
+- name: "Create NPM_PREFIX dir"
+  ansible.builtin.file:
+    path: "{{ xdg_data_home }}/npm"
+    state: directory
