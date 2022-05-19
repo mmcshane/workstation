@@ -1,2 +1,16 @@
 - name: reload font cache
   ansible.builtin.command: fc-cache -f -v
+
+- name: gnome extension nag
+  ansible.builtin.pause:
+    seconds: 1
+    prompt: |
+      ===================================================================
+      New gnome-shell extensions have been prepared but cannot be enabled
+      until gnome is restarted.
+
+      Once gnome has restarted, use
+
+        gnome-extensions enable <extension-name>
+
+      ===================================================================

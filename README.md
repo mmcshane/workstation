@@ -14,16 +14,6 @@
 # mv new.tmp mpm
 ```
 
-### Sound Input & Output Device Chooser
-
-```
-$ mkdir -p "$XDG_DATA_HOME/gnome-shell/extensions/sound-output-device-chooser@kgshank.net"
-$ wget https://extensions.gnome.org/extension-data/sound-output-device-chooserkgshank.net.v43.shell-extension.zip
-$ unzip unzip -d .local/share/gnome-shell/extensions/sound-output-device-chooser@kgshank.net/ sound-output-device-chooserkgshank.net.v43.shell-extension.zip 
-$ # restart gnome
-$ gnome-extensions enable sound-output-device-chooser@kgshank.net
-```
-
 ## Bootstrap With Ansible
 
 ```

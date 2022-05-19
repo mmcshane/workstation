@@ -1,0 +1,24 @@
+- name: "status of desktop icons gnome shell extension"
+  ansible.builtin.command:
+    cmd: gnome-extensions info ding@rastersoft.com
+  register: ding_status
+  changed_when: false
+
+- name: "disable desktop icons gnome shell extension"
+  ansible.builtin.command:
+    cmd: gnome-extensions disable ding@rastersoft.com
+  when: "ding_status.stdout_lines | select('search', 'State: ENABLED') | length > 0"
+
+- name: "create sound-output-device-chooser dir"
+  ansible.builtin.file:
+    path: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@gkshank.net"
+    state: directory
+    recurse: true
+
+- name: "download sound-output-device-chooser"
+  ansible.builtin.unarchive:
+    src: "https://extensions.gnome.org/extension-data/sound-output-device-chooserkgshank.net.v43.shell-extension.zip"
+    remote_src: true
+    dest: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@gkshank.net"
+    creates: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@gkshank.net/metadata.json"
+  notify: gnome extension nag
