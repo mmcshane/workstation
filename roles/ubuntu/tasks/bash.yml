@@ -104,6 +104,11 @@
     content: |
       export GNUPGHOME="${XDG_DATA_HOME:-"$HOME/.local/share"}/gnupg"
 
+- name: "create GNUPGHOME"
+  ansible.builtin.file:
+    path: "{{ xdg_data_home }}/gnupg"
+    state: directory
+
 - name: "wget bashrc"
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.wget.sh"
