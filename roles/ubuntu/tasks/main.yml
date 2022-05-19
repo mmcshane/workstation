@@ -21,7 +21,17 @@
   community.general.snap:
     name: bw
 
-- ansible.builtin.include_tasks:
+- name: "Ensure required directories exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    recurse: true
+  loop:
+    - "{{ ansible_user_dir }}/.local/bin"
+    - "{{ xdg_config_dir }}/bash"
+
+- name: "include ./*.yml"
+  ansible.builtin.include_tasks:
     file: "{{ path }}"
     apply:
       tags: "{{ path | basename | splitext | first }}"
