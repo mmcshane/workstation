@@ -16,11 +16,6 @@
       - libpam-tmpdir
     state: latest
 
-- name: "Ensure Bitwarden CLI installed"
-  become: true
-  community.general.snap:
-    name: bw
-
 - name: "Ensure required directories exist"
   ansible.builtin.file:
     path: "{{ item }}"
@@ -28,7 +23,7 @@
     recurse: true
   loop:
     - "{{ ansible_user_dir }}/.local/bin"
-    - "{{ xdg_config_dir }}/bash"
+    - "{{ xdg_config_home }}/bash"
 
 - name: "include ./*.yml"
   ansible.builtin.include_tasks:
