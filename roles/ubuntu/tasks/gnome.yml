@@ -11,7 +11,7 @@
 
 - name: "create sound-output-device-chooser dir"
   ansible.builtin.file:
-    path: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@gkshank.net"
+    path: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@kgshank.net"
     state: directory
     recurse: true
 
@@ -19,6 +19,6 @@
   ansible.builtin.unarchive:
     src: "https://extensions.gnome.org/extension-data/sound-output-device-chooserkgshank.net.v43.shell-extension.zip"
     remote_src: true
-    dest: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@gkshank.net"
-    creates: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@gkshank.net/metadata.json"
+    dest: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@kgshank.net"
+    creates: "{{ xdg_data_home }}/gnome-shell/extensions/sound-output-device-chooser@kgshank.net/metadata.json"
   notify: gnome extension nag
