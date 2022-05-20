@@ -14,6 +14,7 @@
       - vim-gtk
       - curl
       - libpam-tmpdir
+      - htop
     state: latest
 
 - name: "Ensure required directories exist"
