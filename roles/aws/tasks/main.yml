@@ -1,34 +1,34 @@
 - name: "check for aws cli install"
-  ansible.builtin.command: "file -E {{ ansible_user_dir }}/.local/bin/aws"
-  ignore_errors: true
-  register: find_aws
-  changed_when: false
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.local/bin/aws"
+  register: aws_exe
 
-- name: "set up a temp dir"
-  ansible.builtin.tempfile:
-    state: directory
-    suffix: .delete_me
-  register: aws_download_dir
-  when: find_aws.failed
+- name: "download and install aws cli"
+  block:
+    - name: "set up a temp dir"
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: .aws-cli.delete_me
+      register: aws_download_dir
 
-- name: "download aws cli"
-  ansible.builtin.unarchive:
-    src: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
-    dest: "{{ aws_download_dir.path }}"
-    remote_src: true
-  when: find_aws.failed
+    - name: "download aws cli installer"
+      ansible.builtin.unarchive:
+        src: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "{{ aws_download_dir.path }}"
+        remote_src: true
 
-- name: "install aws cli"
-  ansible.builtin.command:
-    cmd: "{{ aws_download_dir.path }}/aws/install -i {{ ansible_user_dir }}/.local/aws-cli -b {{ ansible_user_dir }}/.local/bin"
-    creates: "{{ ansible_user_dir }}/.local/bin/aws"
-  when: find_aws.failed
+    - name: "run aws cli installer"
+      ansible.builtin.command:
+        cmd: "{{ aws_download_dir.path }}/aws/install -i {{ ansible_user_dir }}/.local/aws-cli -b {{ ansible_user_dir }}/.local/bin"
+        creates: "{{ ansible_user_dir }}/.local/bin/aws"
 
-- name: "remove temp dir"
-  ansible.builtin.file:
-    path: "{{ aws_download_dir.path }}"
-    state: absent
-  when: aws_download_dir is not skipped
+  when: not aws_exe.stat.exists
+  always:
+    - name: "remove temp dir"
+      ansible.builtin.file:
+        path: "{{ aws_download_dir.path }}"
+        state: absent
+      when: aws_download_dir.path is defined
 
 - name: "bashrc aws"
   ansible.builtin.copy:
