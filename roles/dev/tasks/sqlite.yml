@@ -1,0 +1,10 @@
+- name: "sqlite state dir"
+  ansible.builtin.file:
+    path: "{{ xdg_state_home }}/sqlite"
+    state: directory
+
+- name: "sqlite bashrc"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/bash/100.sqlite.sh"
+    content: |
+      export SQLITE_HISTORY="$XDG_STATE_HOME"/sqlite/history
