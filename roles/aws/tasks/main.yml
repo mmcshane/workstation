@@ -30,8 +30,20 @@
         state: absent
       when: aws_download_dir.path is defined
 
+- name: "aws dirs"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ xdg_config_home }}/aws"
+    - "{{ xdg_state_home }}/aws"
+    - "{{ xdg_state_home }}/aws/models"
+
 - name: "bashrc aws"
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.aws.sh"
     content: |
+      export AWS_SHARED_CREDENTIALS_FILE="$XDG_STATE_HOME/aws/credentials"
+      export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
+      export AWS_DATA_PATH="$XDG_STATE_HOME/aws/models"
       complete -C "$HOME/.local/bin/aws_completer" aws
