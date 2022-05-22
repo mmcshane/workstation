@@ -1,0 +1,27 @@
+- name: "fscrypt package"
+  become: true
+  ansible.builtin.package:
+    name:
+      - fscrypt
+
+- name: "setup fscrypt"
+  become: true
+  ansible.builtin.command:
+    cmd: fscrypt setup --quit --force --all-users
+    creates: /etc/fscrypt.conf
+
+- name: "Determine the device that hosts /home"
+  ansible.builtin.command: findmnt --target /home --output source --noheadings
+  changed_when: false
+  register: home_device
+
+- name: "Load home device features"
+  become: true
+  ansible.builtin.shell: "tune2fs -l {{ home_device.stdout }} | grep '^Filesystem features:'"
+  changed_when: false
+  register: home_device_features
+
+- name: "Enable encryption on home device"
+  become: true
+  ansible.builtin.command: "tune2fs -O encrypt {{ home_device.stdout }}"
+  when: "home_device_features.stdout is not search('encrypt')"
