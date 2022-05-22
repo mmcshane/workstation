@@ -7,7 +7,7 @@
 - name: "disable desktop icons gnome shell extension"
   ansible.builtin.command:
     cmd: gnome-extensions disable ding@rastersoft.com
-  when: "ding_status.stdout_lines | select('search', 'State: ENABLED') | length > 0"
+  when: "ding_status.stdout is search('State: ENABLED')"
 
 - name: "create sound-output-device-chooser dir"
   ansible.builtin.file:
