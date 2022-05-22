@@ -1,0 +1,4 @@
+- name: "create XDG_DATA_HOME/pki"
+  ansible.builtin.file:
+    path: "{{ xdg_data_home }}/pki"
+    state: directory
