@@ -1,0 +1,25 @@
+- name: "gradle dirs"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ xdg_state_home }}/gradle"
+    - "{{ xdg_config_home }}/gradle"
+
+- name: "gradle.properties if absent"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/gradle/gradle.properties"
+    force: false
+    content: ""
+
+- name: "link gradle.properties"
+  ansible.builtin.file:
+    src: "{{ xdg_config_home }}/gradle/gradle.properties"
+    dest: "{{ xdg_state_home }}/gradle/gradle.properties"
+    state: link
+
+- name: "gradle bashrc"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/bash/100.gradle.sh"
+    content: |
+      export GRADLE_USER_HOME="$XDG_STATE_HOME"/gradle
