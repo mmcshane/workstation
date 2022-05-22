@@ -14,6 +14,12 @@
       rm -f "{{ ansible_user_dir }}/.zshrc"
     creates: "{{ xdg_data_home }}/sdkman"
 
+- name: "java bashrc"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/bash/100.java.sh"
+    content: |
+      export JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
+
 - name: "install IDEA"
   become: true
   community.general.snap:
