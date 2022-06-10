@@ -8,6 +8,13 @@
       - "--transform"
       - "s/^go/go{{ go_version }}/"
 
+- name: "download protoc {{ protoc_version }}"
+  ansible.builtin.unarchive:
+    src: https://github.com/protocolbuffers/protobuf/releases/download/v{{ protoc_version }}//protoc-{{ protoc_version }}-linux-x86_64.zip
+    remote_src: true
+    dest: "{{ ansible_user_dir }}/.local"
+    creates: "{{ ansible_user_dir }}/.local/bin/protoc"
+
 - name: "bashrc go"
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.go.sh"
