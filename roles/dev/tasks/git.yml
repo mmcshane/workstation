@@ -21,6 +21,9 @@
           prune = true
       [commit]
           verbose = true
+      [alias]
+          amend = commit --amend --no-edit
+          lf = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%an]" --decorate --numstat
       [includeIf "gitdir:~/temporalio/"]
           path = ~/temporalio/.gitconfig
 
