@@ -26,6 +26,8 @@
           lf = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%an]" --decorate --numstat
       [includeIf "gitdir:~/temporalio/"]
           path = ~/temporalio/.gitconfig
+      [blame]
+          ignoreRevsFile = .git-blame-ignore-revs
 
 - name: "XDG_DATA_HOME/tig"
   ansible.builtin.file:
