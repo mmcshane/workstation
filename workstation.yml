@@ -17,3 +17,5 @@
       tags: node
     - role: rust
       tags: rust
+    - role: ruby
+      tags: ruby

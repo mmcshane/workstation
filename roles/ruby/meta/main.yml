@@ -1,0 +1,11 @@
+galaxy_info:
+  author: Matt McShane
+  description: Prepare a workstation for Ruby development
+  license: CC-PDCC
+  min_ansible_version: 2.1
+  galaxy_tags: []
+  platforms:
+    - name: Ubuntu
+      versions:
+        - 22.04
+dependencies: []

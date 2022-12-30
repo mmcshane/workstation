@@ -1,0 +1,21 @@
+- name: "clone rbenv"
+  ansible.builtin.git:
+    depth: 1
+    single_branch: true
+    dest: "{{ rbenv_root }}"
+    repo: 'https://github.com/rbenv/rbenv'
+
+- name: "clone ruby-build"
+  ansible.builtin.git:
+    depth: 1
+    single_branch: true
+    dest: "{{ rbenv_root }}/plugins/ruby-build"
+    repo: 'https://github.com/rbenv/ruby-build'
+
+- name: "rbenv bash configuration"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/bash/100.rbenv.sh"
+    content: |
+      export RBENV_ROOT="{{ rbenv_root }}"
+      eval "$($RBENV_ROOT/bin/rbenv init - bash)"
+
