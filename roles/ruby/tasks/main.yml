@@ -2,8 +2,19 @@
   ansible.builtin.git:
     depth: 1
     single_branch: true
-    dest: "{{ rbenv_root }}"
+    dest: "{{ rbenv_install_home }}"
     repo: 'https://github.com/rbenv/rbenv'
+
+- name: "set up rbenv shared data dirs"
+  ansible.builtin.file:
+    path: "{{ path }}"
+    state: directory
+  loop:
+    - "{{ rbenv_root }}/plugins"
+    - "{{ rbenv_root }}/shims"
+    - "{{ rbenv_root }}/versions"
+  loop_control:
+    loop_var: path
 
 - name: "clone ruby-build"
   ansible.builtin.git:
@@ -17,5 +28,5 @@
     dest: "{{ xdg_config_home }}/bash/100.rbenv.sh"
     content: |
       export RBENV_ROOT="{{ rbenv_root }}"
-      eval "$($RBENV_ROOT/bin/rbenv init - bash)"
+      eval "$({{ rbenv_install_home }}/bin/rbenv init - bash)"
 
