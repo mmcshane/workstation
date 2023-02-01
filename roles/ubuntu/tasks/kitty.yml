@@ -58,9 +58,3 @@
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/dexpota/kitty-themes/master/themes/SpaceGray_Eighties.conf
     dest: "{{ xdg_config_home }}/kitty/current-theme.conf"
-
-- name: "bashrc kitty"
-  ansible.builtin.copy:
-    dest: "{{ xdg_config_home }}/bash/100.kitty.sh"
-    content: |
-      source <(kitty + complete setup bash)
