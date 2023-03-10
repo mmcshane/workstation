@@ -10,6 +10,7 @@
       - make
       - shellcheck
       - sqlite3
+      - mkcert
 
 - ansible.builtin.include_tasks:
     file: "{{ path }}"
