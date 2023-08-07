@@ -35,7 +35,7 @@
     path: "{{ xdg_config_home }}/kitty"
     state: directory
 
-- name: "kitty config file"
+- name: "kitty main config file"
   ansible.builtin.copy:
     force: false
     dest: "{{ xdg_config_home }}/kitty/kitty.conf"
@@ -48,7 +48,13 @@
       shell_integration      disabled
       allow_remote_control   true
       wayland_titlebar_color background
+      include                theme.conf
 
+- name: "kitty theme config file"
+  ansible.builtin.copy:
+    force: false
+    dest: "{{ xdg_config_home }}/kitty/kitty.conf"
+    content: |
       # BEGIN_KITTY_THEME
       # Space Gray Eighties
       include current-theme.conf
