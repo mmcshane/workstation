@@ -121,3 +121,8 @@
     create: true
     line: "hsts-file = {{ xdg_cache_home }}/wget-hsts"
     path: "{{ xdg_config_home }}/wgetrc"
+
+- name: "toggle light/dark script"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.local/bin/"
+    src: toggle-light-dark

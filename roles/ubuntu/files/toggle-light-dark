@@ -1,0 +1,41 @@
+#!/bin/env bash
+
+set -euo pipefail
+
+: "${XDG_CONFIG_HOME:="$HOME/.config"}"
+
+darken() {
+    set_gnome_color_scheme prefer-dark
+    set_kitty_theme "Space Gray Eighties"
+    set_vim_colorscheme tender
+}
+
+lighten() {
+    set_gnome_color_scheme prefer-light
+    set_kitty_theme Github
+    set_vim_colorscheme default
+}
+
+set_gnome_color_scheme() {
+    gsettings set org.gnome.desktop.interface color-scheme $1
+}
+
+set_vim_colorscheme() {
+    echo "colorscheme $1" > "$XDG_CONFIG_HOME/vim/vimrc.colorscheme"
+    (pgrep vim || true) | xargs -r kill -SIGUSR1
+}
+
+set_kitty_theme() {
+    kitty +kitten themes --config-file-name theme.conf --cache-age -1 "$1"
+
+    #sed -i 's/# wayland/wayland/g' "$XDG_CONFIG_HOME/kitty/kitty.conf"
+    #(pgrep kitty || true) | xargs -r kill -SIGUSR1
+}
+
+main() {
+    local current; current="$(gsettings get org.gnome.desktop.interface color-scheme)"
+    [[ $current =~ 'prefer-light' ]] && darken || lighten
+}
+
+main "$@"
+
