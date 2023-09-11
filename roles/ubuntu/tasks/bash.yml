@@ -57,6 +57,11 @@
       export HISTIGNORE="clear:cd:cd -:cd ..:exit:date:w:* --help:"
       export HISTFILE="${XDG_CACHE_HOME:-"$HOME/.cache"}/bash_history"
 
+- name: "user completions"
+  ansible.building.file:
+    path: "{{ xdg_data_home }}/bash-completion/completions"
+    state: directory
+
 - name: "readline config dir"
   ansible.builtin.file:
     path: "{{ xdg_config_home }}/readline/"

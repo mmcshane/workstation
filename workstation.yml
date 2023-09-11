@@ -19,3 +19,5 @@
       tags: rust
     - role: ruby
       tags: ruby
+    - role: python
+      tags: python

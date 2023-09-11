@@ -1,0 +1,53 @@
+- name: "python3 build requirements"
+  become: true
+  ansible.builtin.package:
+    name:
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - curl
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - libffi-dev
+      - liblzma-dev
+    state: latest
+
+- name: "install pyenv"
+  ansible.builtin.shell:
+    cmd: curl "https://pyenv.run" | bash
+    creates: "{{ pyenv_root }}"
+  environment:
+    PYENV_ROOT: "{{ pyenv_root }}"
+
+- name: "pyenv bash config"
+  ansible.builtin.copy:
+    dest: "{{ xdg_config_home }}/bash/100.pyenv.sh"
+    content: |
+      export PYENV_ROOT="$HOME/.pyenv"
+      path_prepend PATH {{ pyenv_root }}/bin
+      eval "$(pyenv init -)"
+      eval "$(pyenv virtualenv-init -)"
+
+- name: "install poetry"
+  ansible.builtin.shell:
+    cmd: curl -sSL https://install.python-poetry.org | python3
+    creates: "{{ poetry_root }}"
+  environment:
+    POETRY_HOME: "{{ poetry_root }}"
+
+- name: "put poetry on PATH"
+  ansible.builtin.file:
+    src: "{{ poetry_root }}/bin/poetry"
+    dest: "{{ ansible_user_dir }}/.local/bin/poetry"
+    state: link
+
+- name: "poetry bash completions"
+  ansible.builtin.shell:
+    cmd: poetry completions bash >> {{ xdg_data_home }}/bash-completion/completions/poetry
+    creates: "{{ xdg_data_home }}/bash-completion/completions/poetry"
