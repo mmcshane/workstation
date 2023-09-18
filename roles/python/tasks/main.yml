@@ -16,6 +16,7 @@
       - libxmlsec1-dev
       - libffi-dev
       - liblzma-dev
+      - python3-pip
     state: latest
 
 - name: "install pyenv"
@@ -29,8 +30,8 @@
   ansible.builtin.copy:
     dest: "{{ xdg_config_home }}/bash/100.pyenv.sh"
     content: |
-      export PYENV_ROOT="$HOME/.pyenv"
-      path_prepend PATH {{ pyenv_root }}/bin
+      export PYENV_ROOT="{{ pyenv_root }}"
+      path_prepend PATH "{{ pyenv_root }}/bin"
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
 
@@ -51,3 +52,31 @@
   ansible.builtin.shell:
     cmd: poetry completions bash >> {{ xdg_data_home }}/bash-completion/completions/poetry
     creates: "{{ xdg_data_home }}/bash-completion/completions/poetry"
+
+- name: "Look up latest python version in major version 3"
+  ansible.builtin.command: pyenv latest 3
+  register: py_latest
+  changed_when: false
+
+- name: "Ensure python {{ py_latest.stdout }} is installed"
+  ansible.builtin.command:
+    cmd: "{{ pyenv_root}}/bin/pyenv install {{ py_latest.stdout }}"
+    creates: "{{ pyenv_root }}/versions/{{ py_latest.stdout }}"
+
+- name: "Create python language server virtualenv"
+  ansible.builtin.shell:
+    cmd: |
+      source "{{ xdg_config_home }}/bash/100.pyenv.sh"
+      pyenv virtualenv {{ py_latest.stdout }} language-server
+    creates: "{{ pyenv_root }}/versions/language-server"
+
+- name: "Ensure python-language-server and plugins are installed in language-server virtualenv"
+  ansible.builtin.shell:
+    cmd: |
+      source "{{ xdg_config_home }}/bash/100.pyenv.sh"
+      pyenv activate language-server
+      pip --require-virtualenv --no-input install python-lsp-server pylsp-mypy pyls-isort python-lsp-black python-lsp-ruff pylsp-rope
+    executable: /bin/bash
+  register: pylsp_install
+  changed_when: pylsp_install is search("Installing")
+
