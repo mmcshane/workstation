@@ -1,0 +1,18 @@
+- name: "nvim package"
+  become: true
+  ansible.community.snap:
+    name:
+      - nvim
+
+- name: "ripgrep package"
+  become: true
+  ansible.builtin.package:
+    name:
+      - ripgrep
+      - fzf
+
+- name: "nvim config dir"
+  ansible.builtin.copy:
+    src: nvim/
+    dest: "{{ xdg_config_home }}/nvim"
+
